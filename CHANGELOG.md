@@ -8,6 +8,21 @@ changes may land between minor versions per the spec evolution policy in
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-07-27
+
+### Added
+- **LangChain integration** (`memorywire.integrations.langchain`): a drop-in
+  `MemorywireChatMessageHistory` (`BaseChatMessageHistory`) that persists messages to memorywire
+  with **automatic provenance** — the `source` is derived from the message role
+  (`HumanMessage`→`user`, `SystemMessage`→`system`, `AIMessage`→`agent`,
+  `ToolMessage`/`FunctionMessage`→`tool_result`). Because tool output (the usual injection vector)
+  is auto-tagged untrusted, `recover` works with no manual tagging.
+  - `.recover()` / `.arecover()` clean a session scoped to conversation trust
+    (`{user, system, agent}`): purge tool-origin poison without deleting the conversation.
+  - Sync and async (`aadd_messages`, `aget_messages`, `arecover`).
+- `[langchain]` optional dependency group (`langchain-core>=0.3`).
+- Docs: [`docs/langchain.md`](docs/langchain.md).
+
 ## [0.3.0] - 2026-07-17
 
 ### Added
