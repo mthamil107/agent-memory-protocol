@@ -43,8 +43,9 @@ cognee     = ["cognee>=1.1"]
 postgres   = ["asyncpg>=0.29", "pgvector>=0.3"]
 ui         = ["starlette>=0.37", "uvicorn>=0.30", "jinja2>=3.1", "python-multipart>=0.0.9"]
 mcp        = ["mcp>=1.2"]
+langchain  = ["langchain-core>=0.3"]
 all        = [
-  "memorywire[sqlite-vec,mem0,letta,cognee,postgres,ui,mcp]",
+  "memorywire[sqlite-vec,mem0,letta,cognee,postgres,ui,mcp,langchain]",
 ]
 
 [project.scripts]

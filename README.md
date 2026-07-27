@@ -134,6 +134,20 @@ persistent, recoverable memory by adding it to the client config — no code:
 The agent gains `remember` / `recall` / `forget` / `merge` / `expire` / `recover` tools. Install
 with `pip install "memorywire[mcp,sqlite-vec]"`; see [`docs/mcp-server.md`](docs/mcp-server.md).
 
+## Use from LangChain
+
+A drop-in chat history with **automatic provenance** — message role sets `source`, so `recover`
+works with no manual tagging (`ToolMessage` → `tool_result`, the untrusted injection vector):
+
+```python
+from memorywire.integrations.langchain import MemorywireChatMessageHistory
+history = MemorywireChatMessageHistory(session_id="user-42", store="sqlite-vec://./mem.db")
+# ...use with RunnableWithMessageHistory...
+history.recover(dry_run=True)   # preview cleaning tool-origin poison
+```
+
+`pip install "memorywire[langchain,sqlite-vec]"` · see [`docs/langchain.md`](docs/langchain.md).
+
 ## Quickstart
 
 ```python
