@@ -40,7 +40,7 @@ pip install "memorywire[sqlite-vec]"
 memorywire recover --agent my-agent --store sqlite-vec://./mem.db --dry-run
 ```
 
-Works in **any MCP agent** and as a **LangChain** drop-in (memories are auto-tagged by origin, so recovery works with no manual setup). Full paper: [arXiv:2606.01138](https://arxiv.org/abs/2606.01138).
+Works in **any MCP agent** and as a **LangChain** drop-in (memories are auto-tagged by origin, so recovery works with no manual setup). **See it** &mdash; `memorywire graph --report out.html` renders the store as a trust graph where you click an untrusted source and watch its blast radius purge ([docs](docs/graph.md)). Full paper: [arXiv:2606.01138](https://arxiv.org/abs/2606.01138).
 
 ---
 
