@@ -13,14 +13,12 @@ date-released: 2026-05-26
 # (see .github/release-please-config.json — CITATION.cff is in `extra-files`).
 # Do NOT bump them by hand; merging the release-PR will rewrite them.
 #
-# DOI placeholder — replace once the GitHub <-> Zenodo integration is wired.
-# To wire Zenodo:
-#   1. Sign in to https://zenodo.org with your GitHub account.
-#   2. Toggle ON the `mthamil107/memorywire` repo in Zenodo's
-#      GitHub settings panel — Zenodo will then mint a concept DOI and a
-#      per-release DOI every time a GitHub release is published.
-#   3. Replace the placeholder below with the concept DOI Zenodo returns.
-doi: 10.5281/zenodo.PLACEHOLDER
+# The memorywire paper is on arXiv (2606.01138). No Zenodo software DOI yet;
+# wire the GitHub<->Zenodo integration to mint one if you want per-release DOIs.
+identifiers:
+  - type: other
+    value: "arXiv:2606.01138"
+    description: "arXiv preprint identifier (memorywire paper)"
 url: "https://github.com/mthamil107/memorywire"
 repository-code: "https://github.com/mthamil107/memorywire"
 license: Apache-2.0

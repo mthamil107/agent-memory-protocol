@@ -1,7 +1,7 @@
 <h1 align="center">memorywire</h1>
 
 <p align="center">
-  <strong>A vendor-neutral wire format for agent memory operations.</strong>
+  <strong>Purge poisoned memory from your AI agents &mdash; by provenance &mdash; and quarantine what can't be safely removed for a human.</strong>
 </p>
 
 <p align="center">
@@ -23,11 +23,32 @@
 
 ---
 
+## Clean poisoned memory out of your AI agents
+
+An attacker can plant a permanent instruction in an agent's long-term memory &mdash; a poisoned "fact" or a fake "successful experience" that then steers every future session. Deleting the obvious entry isn't enough; laundered copies and dormant triggers survive.
+
+**memorywire cleans it up.** It purges memory that came from **untrusted sources** and **quarantines** directives hidden inside *trusted* memories for human review (instead of guessing and destroying a real fact) &mdash; and you can preview every change with `--dry-run` before anything is removed. It's the security &amp; governance layer for agent memory. Vendor-neutral. Addresses **OWASP ASI06 (Memory Poisoning)**.
+
+<p align="center">
+  <img alt="memorywire recover: purge untrusted-origin poison, quarantine directives hidden in trusted memories, keep the benign facts" src="docs/demos/recover-explainer.gif" width="640">
+</p>
+
+Measured by the companion benchmark **[PurgeBench](https://github.com/mthamil107/purgebench)**: provenance-based purge recovers **RC 0.64**, where content-anomaly detection scores **0.036** on *semantic* poison &mdash; a plausible-sounding malicious fact isn't an "anomaly," so filters miss it. The one class no automatic method beats &mdash; a directive fused into a legitimate memory &mdash; is exactly what memorywire quarantines for a human.
+
+```bash
+pip install "memorywire[sqlite-vec]"
+memorywire recover --agent my-agent --store sqlite-vec://./mem.db --dry-run
+```
+
+Works in **any MCP agent** and as a **LangChain** drop-in (memories are auto-tagged by origin, so recovery works with no manual setup). Full paper: [arXiv:2606.01138](https://arxiv.org/abs/2606.01138).
+
+---
+
 <p align="center">
   <img alt="memorywire in 13 seconds: islanded frameworks &rarr; memorywire layer &rarr; pending approval &rarr; diff &rarr; approve &rarr; audit log" src="docs/demos/memorywire-explainer.gif" width="560">
 </p>
 
-> **Everyone else built a memory _store_. memorywire is the vendor-neutral protocol and governance layer that sits _above_ all of them.**
+> **Under the security layer, memorywire is also a vendor-neutral protocol and governance plane that sits _above_ every memory store.**
 
 ## Positioning
 
