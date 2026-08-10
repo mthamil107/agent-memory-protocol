@@ -8,6 +8,19 @@ changes may land between minor versions per the spec evolution policy in
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-08-10
+
+### Added
+- **Trust-graph report** (`memorywire graph`, `memorywire.graph`): renders the memory store as a
+  self-contained HTML graph (inline SVG, no server/CDN/external calls). Memories are colored by
+  recovery verdict (clean / quarantined / purged); sources are squares ringed by trust
+  (green = trusted origin, red = untrusted); edges are provenance. Click an untrusted source to see
+  its **blast radius** and **purge by provenance** with a live animation.
+  - Colorblind-safe palette with redundant shape encoding; hardened against attacker-controlled
+    memory content (no script break-out; content escaped everywhere).
+  - CLI: `memorywire graph --report out.html [--trusted user,system] [--title ...]`.
+- Docs: [`docs/graph.md`](docs/graph.md).
+
 ## [0.4.0] - 2026-07-27
 
 ### Added
