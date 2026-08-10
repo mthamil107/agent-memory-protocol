@@ -30,7 +30,7 @@ An attacker can plant a permanent instruction in an agent's long-term memory &md
 **memorywire cleans it up.** It purges memory that came from **untrusted sources** and **quarantines** directives hidden inside *trusted* memories for human review (instead of guessing and destroying a real fact) &mdash; and you can preview every change with `--dry-run` before anything is removed. It's the security &amp; governance layer for agent memory. Vendor-neutral. Addresses **OWASP ASI06 (Memory Poisoning)**.
 
 <p align="center">
-  <img alt="memorywire recover: purge untrusted-origin poison, quarantine directives hidden in trusted memories, keep the benign facts" src="docs/demos/recover-explainer.gif" width="640">
+  <img alt="memorywire trust graph: click the untrusted source, see its blast radius, purge the poison by provenance; benign memory kept, hidden directive quarantined for a human" src="docs/demos/trust-graph.gif" width="720">
 </p>
 
 Measured by the companion benchmark **[PurgeBench](https://github.com/mthamil107/purgebench)**: provenance-based purge recovers **RC 0.64**, where content-anomaly detection scores **0.036** on *semantic* poison &mdash; a plausible-sounding malicious fact isn't an "anomaly," so filters miss it. The one class no automatic method beats &mdash; a directive fused into a legitimate memory &mdash; is exactly what memorywire quarantines for a human.
