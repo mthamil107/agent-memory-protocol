@@ -174,6 +174,16 @@ def _build_parser() -> argparse.ArgumentParser:
     recover.add_argument("--json", dest="json_out", action="store_true", help="Emit JSON.")
     _add_common_flags(recover)
 
+    graph = subparsers.add_parser(
+        "graph", help="Render the memory store as a self-contained HTML trust graph."
+    )
+    graph.add_argument("--report", default="memorywire-graph.html", help="Output HTML file path.")
+    graph.add_argument(
+        "--trusted", default="user,system", help="Comma-separated trusted sources (default: user,system)."
+    )
+    graph.add_argument("--title", default="memorywire trust graph", help="Report title.")
+    _add_common_flags(graph)
+
     return parser
 
 
@@ -355,6 +365,27 @@ async def _handle_recover(args: argparse.Namespace) -> int:
     return 0
 
 
+async def _handle_graph(args: argparse.Namespace) -> int:
+    """Implement ``memorywire graph``."""
+    from memorywire.graph import build_graph, render_html
+    from memorywire.recovery import Recoverer
+
+    trusted = {s.strip() for s in args.trusted.split(",") if s.strip()}
+    mem = Memory(agent_id=args.agent_id, stores=_resolve_stores(args))
+    try:
+        rec = Recoverer(mem, trusted_sources=trusted)
+        verdicts = rec.scan()
+    finally:
+        await mem.close()
+
+    records = [v.record for v in verdicts]
+    graph = build_graph(records, verdicts, trusted_sources=trusted)
+    with open(args.report, "w", encoding="utf-8") as f:
+        f.write(render_html(graph, title=args.title))
+    print(f"wrote {args.report} ({len(graph['nodes'])} nodes, {len(graph['edges'])} edges)")
+    return 0
+
+
 # ---------------------------------------------------------------------------
 # Entry point
 # ---------------------------------------------------------------------------
@@ -365,6 +396,7 @@ _HANDLERS = {
     "recall": _handle_recall,
     "forget": _handle_forget,
     "recover": _handle_recover,
+    "graph": _handle_graph,
 }
 
 
