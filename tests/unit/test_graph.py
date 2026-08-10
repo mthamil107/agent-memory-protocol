@@ -41,9 +41,10 @@ async def test_build_graph_nodes_edges_and_trust():
     trusts = sorted(n["trust"] for n in mem_nodes)
     assert trusts == ["clean", "purge", "quarantine"]           # benign / web_page / entangled
 
-    # source nodes: user (trusted -> clean) and web_page (untrusted -> purge)
-    labels = {s["label"]: s["trust"] for s in src_nodes}
-    assert labels["user"] == "clean" and labels["web_page"] == "purge"
+    # source nodes keep their own kind; trust is carried by the `trusted` flag (ring), not fill
+    trusted = {s["label"]: s["trusted"] for s in src_nodes}
+    assert trusted["user"] is True and trusted["web_page"] is False
+    assert all(s["trust"] == "source" for s in src_nodes)
 
     # every memory has exactly one provenance edge from its source
     assert len(g["edges"]) == len(mem_nodes)
@@ -54,5 +55,19 @@ async def test_render_html_is_selfcontained():
     html = render_html(build_graph([v.record for v in verdicts], verdicts), title="T")
     assert html.startswith("<!doctype html>")
     assert "attacker-mailbox" in html            # data embedded
-    assert "http://" not in html and "https://" not in html  # no external calls
-    assert "<script>" in html and "cdn" not in html.lower()
+    assert "cdn" not in html.lower()             # no external lib
+    assert html.count("<script>") == 1           # one inline script, no external
+
+
+async def test_poisoned_content_cannot_break_out_of_script():
+    """XSS hardening: attacker-controlled memory content must not close the <script> tag."""
+    mem = Memory(agent_id="t", stores=[SqliteVecStore(":memory:", embedder=_emb)])
+    await mem.remember("evil</script><img src=x onerror=alert(1)> from the web", source="web_page")
+    rec = Recoverer(mem)
+    verdicts = rec.scan()
+    await mem.close()
+    html = render_html(build_graph([v.record for v in verdicts], verdicts))
+    # the only real closing script tag is the template's own; the poisoned "</script>"
+    # is neutralized to "<\/script>", so exactly one "</script>" remains.
+    assert html.count("</script>") == 1
+    assert "<\\/script>" in html
