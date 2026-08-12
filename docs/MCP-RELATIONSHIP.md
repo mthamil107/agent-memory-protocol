@@ -348,5 +348,5 @@ references.
 - Cloudflare Web Bot Auth Internet-Draft precedent Ã¢â‚¬â€
   `draft-meunier-web-bot-auth-architecture` (IETF). The
   ship-spec-then-propose-upstream pattern memorywire follows.
-- "Governed Memory" (arXiv 2603.17787) Ã¢â‚¬â€ the Co-memorize HITL
-  pattern that informs memorywire's governance channel.
+- "Governed Memory" (arXiv 2603.17787) Ã¢â‚¬â€ automated governance for autonomous agents,
+  the human-gated contrast to memorywire's governance channel.

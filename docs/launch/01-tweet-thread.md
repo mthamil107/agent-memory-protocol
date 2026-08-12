@@ -44,7 +44,7 @@ Empirical numbers in the paper:
 ## 4/6
 
 ```
-The piece I leaned on most: every remember() can stage behind a human-review queue with a structured diff against current memory state. The Co-memorize / Governed Memory pattern, productized.
+The piece I leaned on most: every remember() can stage behind a human-review queue with a structured diff against current memory state. Human-in-the-loop governance, productized as protocol surface — unlike automated approaches such as Governed Memory (arXiv 2603.17787), the human stays in the gate.
 
 Full threat model in the paper Â§6 â€” 6 adversaries mapped to OWASP + CWE.
 ```

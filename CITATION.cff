@@ -85,18 +85,19 @@ references:
         description: "arXiv preprint identifier"
     url: "https://arxiv.org/abs/2402.17753"
   - type: article
-    title: "Governed Memory: Human-in-the-Loop Co-memorize for Long-Lived Agent Memory"
+    title: "Governed Memory: A Production Architecture for Multi-Agent Workflows"
     authors:
-      - name: "Governed Memory authors (see arXiv listing)"
+      - family-names: "Taheri"
+        given-names: "Hamed"
     year: 2026
     identifiers:
       - type: other
         value: "arXiv:2603.17787"
-        description: "arXiv preprint identifier (per docs/kickoff/FINDINGS-CONTEXT.md; verify on arXiv before publication)"
+        description: "arXiv preprint identifier"
     notes: >-
-      Citation transcribed from project kickoff notes. The diff-and-approve
-      workflow in memorywire's governance channel draws on the Co-memorize HITL
-      pattern surfaced in this paper.
+      memorywire's human-in-the-loop diff-and-approve governance contrasts with
+      this line of work, which enforces memory governance automatically for
+      autonomous multi-agent workflows rather than through a human-approval gate.
   - type: software
     title: "Model Context Protocol (MCP)"
     authors:
