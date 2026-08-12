@@ -13,7 +13,7 @@
 **5.5 Recovery from memory poisoning.** §6.1 notes that memorywire makes malicious writes
 *auditable* but cannot prevent a trusted agent from being prompt-injected into planting one. A
 natural question follows: once a store is poisoned, can memorywire's `forget` / `expire`
-operations *recover* it? We evaluate this with PurgeBench [cite], an external, reproducible
+operations *recover* it? We evaluate this with PurgeBench [cite], a reproducible, framework-agnostic (companion) 
 benchmark that poisons an agent memory store with 30 adversarial entries across five classes
 (direct, laundered, entangled, dormant, procedural), applies a recovery procedure, and scores the
 result on **Recovery-Completeness** — the balanced combination of eradication (ER), utility
