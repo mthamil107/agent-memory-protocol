@@ -1,4 +1,4 @@
-﻿"""Tests for the ``amp`` CLI.
+"""Tests for the ``amp`` CLI.
 
 Two flavours of coverage:
 

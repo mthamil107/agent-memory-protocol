@@ -117,7 +117,12 @@ select = [
   "SIM",           # flake8-simplify
   "RUF",           # ruff-specific
 ]
-ignore = ["E501"]  # line length enforced by formatter
+ignore = [
+  "E501",             # line length enforced by formatter
+  # Intentional typography in prose docstrings/comments/strings
+  # (em dashes, curly quotes, arrows) — deliberate, not defects.
+  "RUF001", "RUF002", "RUF003",
+]
 
 [tool.ruff.format]
 quote-style = "double"
@@ -131,8 +136,17 @@ warn_redundant_casts = true
 exclude = ["docs/kickoff/", "docs/demos/", "build/", "dist/"]
 
 [[tool.mypy.overrides]]
-module = ["sqlite_vec.*", "mem0.*", "letta_client.*", "transitions.*", "sentence_transformers.*", "asyncpg.*", "pgvector.*", "cognee.*"]
+module = ["sqlite_vec.*", "mem0.*", "letta_client.*", "transitions.*", "sentence_transformers.*", "asyncpg.*", "pgvector.*", "cognee.*", "langchain_core.*", "mcp.*"]
 ignore_missing_imports = true
+
+# The mcp / langchain integration shims subclass and decorate types from
+# optional deps that are absent in the lint env (only sqlite-vec is installed),
+# so those bases/decorators resolve to Any. Relax just the Any-strictness for
+# these two modules; every other strict check still applies.
+[[tool.mypy.overrides]]
+module = ["memorywire.mcp.server", "memorywire.integrations.langchain"]
+disallow_subclassing_any = false
+disallow_untyped_decorators = false
 
 [tool.coverage.run]
 source = ["src/memorywire"]

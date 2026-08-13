@@ -72,7 +72,9 @@ if style_match:
         print("    OK -- arXiv ships this style.")
     else:
         warnings.append(f"non-stock bib style {style!r}; you'd need to bundle the .bst file")
-        print(f"    WARN -- non-stock style. Verify {style}.bst ships in your bundle, or switch to plain.")
+        print(
+            f"    WARN -- non-stock style. Verify {style}.bst ships in your bundle, or switch to plain."
+        )
 else:
     warnings.append("no \\bibliographystyle directive; default plain assumed")
     print("    WARN -- no \\bibliographystyle; arXiv will likely default to plain.")
@@ -80,16 +82,16 @@ else:
 # 4. Archival-forever-comment scan
 print("\n[4] Suspicious-comment scan (archived forever)")
 sensitive_patterns = [
-    (r"%\s*TODO\b",          "TODO marker in comment"),
-    (r"%\s*FIXME\b",         "FIXME marker in comment"),
-    (r"%\s*XXX\b",           "XXX marker in comment"),
-    (r"%\s*HACK\b",          "HACK marker in comment"),
-    (r"%\s*DRAFT\b",         "DRAFT marker in comment"),
-    (r"%\s*confidential\b",  "confidential keyword in comment"),
-    (r"%\s*private\b",       "private keyword in comment"),
-    (r"%\s*password\b",      "password keyword in comment"),
+    (r"%\s*TODO\b", "TODO marker in comment"),
+    (r"%\s*FIXME\b", "FIXME marker in comment"),
+    (r"%\s*XXX\b", "XXX marker in comment"),
+    (r"%\s*HACK\b", "HACK marker in comment"),
+    (r"%\s*DRAFT\b", "DRAFT marker in comment"),
+    (r"%\s*confidential\b", "confidential keyword in comment"),
+    (r"%\s*private\b", "private keyword in comment"),
+    (r"%\s*password\b", "password keyword in comment"),
     (r"%[^\n]*api[_-]?key", "api key reference in comment"),
-    (r"%[^\n]*<.+@.+\>",    "email address in comment"),
+    (r"%[^\n]*<.+@.+\>", "email address in comment"),
 ]
 found_any = False
 for pat, label in sensitive_patterns:
@@ -105,7 +107,9 @@ if not found_any:
 
 # Also count total comment lines & characters for awareness.
 comment_lines = [ln for ln in tex.splitlines() if ln.lstrip().startswith("%")]
-print(f"    info: {len(comment_lines)} comment lines, {sum(len(c) for c in comment_lines):,} comment chars.")
+print(
+    f"    info: {len(comment_lines)} comment lines, {sum(len(c) for c in comment_lines):,} comment chars."
+)
 
 # 5. Binary/stray files
 print("\n[5] Bundle hygiene")
@@ -130,7 +134,9 @@ if missing:
     failures.append(f"\\cite keys missing from memorywire.bib: {sorted(missing)}")
     print(f"    FAIL -- missing keys: {sorted(missing)}")
 else:
-    print(f"    OK -- all {len(cited)} cite keys resolve in memorywire.bib ({len(bib_keys)} entries)")
+    print(
+        f"    OK -- all {len(cited)} cite keys resolve in memorywire.bib ({len(bib_keys)} entries)"
+    )
 
 # Verdict
 print()

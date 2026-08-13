@@ -1,4 +1,4 @@
-﻿"""Starlette application factory for the memorywire Governance UI.
+"""Starlette application factory for the memorywire Governance UI.
 
 The :func:`create_app` function wires the five route modules, mounts the
 static directory, registers the Jinja2 environment on ``app.state``, and

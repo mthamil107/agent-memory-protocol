@@ -6,7 +6,10 @@ Enumeration reads memory rows (including the ``source`` / ``confidence`` provena
 All *mutations* go through the ``Memory`` facade's ``forget`` / ``expire`` so the audit trail
 and soft-delete (= quarantine) semantics are the real ones.
 """
+
 from __future__ import annotations
+
+from typing import Any
 
 from memorywire.api import Memory
 from memorywire.models import ExpireAction
@@ -15,7 +18,7 @@ from .report import EntryVerdict, MemoryRecord, RecoveryReport, Verdict
 from .strategies import DEFAULT_TRUSTED, Detector, classify
 
 
-def _enumerate_sqlite(store, agent_id: str) -> list[MemoryRecord]:
+def _enumerate_sqlite(store: Any, agent_id: str) -> list[MemoryRecord]:
     """Read live (non-deleted) rows from a SqliteVecStore for one agent."""
     conn = getattr(store, "_conn", None)
     if conn is None:
@@ -25,8 +28,12 @@ def _enumerate_sqlite(store, agent_id: str) -> list[MemoryRecord]:
         "WHERE agent_id = ? AND (deleted_at IS NULL)",
         (agent_id,),
     ).fetchall()
-    return [MemoryRecord(id=r["id"], content=r["content"], source=r["source"],
-                         confidence=r["confidence"]) for r in rows]
+    return [
+        MemoryRecord(
+            id=r["id"], content=r["content"], source=r["source"], confidence=r["confidence"]
+        )
+        for r in rows
+    ]
 
 
 class Recoverer:
@@ -56,8 +63,12 @@ class Recoverer:
 
     def scan(self, *, quarantine_suspicious: bool = True) -> list[EntryVerdict]:
         return [
-            classify(r, trusted_sources=self._trusted, detectors=self._detectors,
-                     quarantine_suspicious=quarantine_suspicious)
+            classify(
+                r,
+                trusted_sources=self._trusted,
+                detectors=self._detectors,
+                quarantine_suspicious=quarantine_suspicious,
+            )
             for r in self._collect()
         ]
 
@@ -80,26 +91,28 @@ class Recoverer:
         quarantine_ids = [e.record.id for e in verdicts if e.verdict is Verdict.QUARANTINE]
 
         if purge_ids:
-            await self._mem.forget(ids=purge_ids, hard_delete=hard_delete,
-                                   reason="recover:purge:untrusted-source")
+            await self._mem.forget(
+                ids=purge_ids, hard_delete=hard_delete, reason="recover:purge:untrusted-source"
+            )
         if quarantine_ids:
             # soft-delete only — removed from recall but restorable, pending human review
-            await self._mem.forget(ids=quarantine_ids, hard_delete=False,
-                                   reason="recover:quarantine:review")
+            await self._mem.forget(
+                ids=quarantine_ids, hard_delete=False, reason="recover:quarantine:review"
+            )
         if expire_low_conf:
-            resp = await self._mem.expire(policy={"confidence_below": confidence_below},
-                                          action=ExpireAction.FORGET)
-            report.expired = len(getattr(resp, "affected_ids", []) or
-                                 getattr(resp, "expired_ids", []) or [])
+            resp = await self._mem.expire(
+                policy={"confidence_below": confidence_below}, action=ExpireAction.FORGET
+            )
+            report.expired = len(
+                getattr(resp, "affected_ids", []) or getattr(resp, "expired_ids", []) or []
+            )
         return report
 
-    async def verify(self, triggers: dict[str, str] | None = None) -> dict:
+    async def verify(self, triggers: dict[str, str] | None = None) -> dict[str, Any]:
         """Optional self-check. Returns residual counts; if triggers ({marker: query}) are
         given, re-recalls each and reports any marker that still surfaces."""
-        residual_untrusted = sum(
-            1 for e in self.scan() if e.verdict is Verdict.PURGE
-        )
-        result = {"residual_untrusted": residual_untrusted}
+        residual_untrusted = sum(1 for e in self.scan() if e.verdict is Verdict.PURGE)
+        result: dict[str, Any] = {"residual_untrusted": residual_untrusted}
         if triggers:
             still_firing = []
             for marker, query in triggers.items():

@@ -1,4 +1,4 @@
-﻿"""ASGI middleware for the memorywire Governance UI: bearer-token auth + CSRF.
+"""ASGI middleware for the memorywire Governance UI: bearer-token auth + CSRF.
 
 Two middlewares ship from this module, both opt-in via :func:`amp_ui.app.create_app`:
 

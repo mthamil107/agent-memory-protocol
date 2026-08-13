@@ -1,4 +1,5 @@
 """Unit tests for the LangChain integration (memorywire.integrations.langchain)."""
+
 from __future__ import annotations
 
 import hashlib
@@ -8,14 +9,14 @@ import pytest
 
 pytest.importorskip("langchain_core")
 
-from langchain_core.messages import AIMessage, HumanMessage, ToolMessage  # noqa: E402
+from langchain_core.messages import AIMessage, HumanMessage, ToolMessage
 
-from memorywire.api import Memory  # noqa: E402
-from memorywire.integrations.langchain import (  # noqa: E402
-    MemorywireChatMessageHistory,
+from memorywire.api import Memory
+from memorywire.integrations.langchain import (
     _SOURCE,
+    MemorywireChatMessageHistory,
 )
-from memorywire.store.sqlite_vec import SqliteVecStore  # noqa: E402
+from memorywire.store.sqlite_vec import SqliteVecStore
 
 _DIM = 384
 
@@ -35,7 +36,7 @@ def _history() -> MemorywireChatMessageHistory:
 
 def test_role_to_source_mapping():
     assert _SOURCE["human"] == "user"
-    assert _SOURCE["tool"] == "tool_result"   # untrusted — the injection vector
+    assert _SOURCE["tool"] == "tool_result"  # untrusted — the injection vector
     assert _SOURCE["ai"] == "agent"
     assert _SOURCE["system"] == "system"
 

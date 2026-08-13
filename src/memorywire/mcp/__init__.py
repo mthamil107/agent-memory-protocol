@@ -3,6 +3,7 @@
 Run as ``memorywire-mcp`` (stdio). Any MCP-aware agent can then remember / recall / forget /
 merge / expire / recover memory. See :mod:`memorywire.mcp.server`.
 """
+
 from __future__ import annotations
 
 __all__ = ["main"]

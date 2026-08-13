@@ -1,4 +1,4 @@
-﻿"""Tests for :mod:`memorywire.models`.
+"""Tests for :mod:`memorywire.models`.
 
 These tests prove that:
 

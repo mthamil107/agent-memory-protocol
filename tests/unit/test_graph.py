@@ -1,4 +1,5 @@
 """Unit tests for the trust-graph report (memorywire.graph)."""
+
 from __future__ import annotations
 
 import hashlib
@@ -39,7 +40,7 @@ async def test_build_graph_nodes_edges_and_trust():
     mem_nodes = [n for n in g["nodes"] if n["kind"] == "memory"]
     src_nodes = [n for n in g["nodes"] if n["kind"] == "source"]
     trusts = sorted(n["trust"] for n in mem_nodes)
-    assert trusts == ["clean", "purge", "quarantine"]           # benign / web_page / entangled
+    assert trusts == ["clean", "purge", "quarantine"]  # benign / web_page / entangled
 
     # source nodes keep their own kind; trust is carried by the `trusted` flag (ring), not fill
     trusted = {s["label"]: s["trusted"] for s in src_nodes}
@@ -54,9 +55,9 @@ async def test_render_html_is_selfcontained():
     verdicts = await _seeded_verdicts()
     html = render_html(build_graph([v.record for v in verdicts], verdicts), title="T")
     assert html.startswith("<!doctype html>")
-    assert "attacker-mailbox" in html            # data embedded
-    assert "cdn" not in html.lower()             # no external lib
-    assert html.count("<script>") == 1           # one inline script, no external
+    assert "attacker-mailbox" in html  # data embedded
+    assert "cdn" not in html.lower()  # no external lib
+    assert html.count("<script>") == 1  # one inline script, no external
 
 
 async def test_poisoned_content_cannot_break_out_of_script():

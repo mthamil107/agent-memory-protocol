@@ -14,11 +14,13 @@ That auto-provenance is what lets ``recover`` clean the store later with no manu
 prompt-injection that arrives through a tool result is written as ``source="tool_result"`` and is
 therefore purgeable by provenance. See :meth:`MemorywireChatMessageHistory.recover`.
 """
+
 from __future__ import annotations
 
 import asyncio
 import concurrent.futures
-from typing import Any
+from collections.abc import Sequence
+from typing import Any, cast
 
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.messages import BaseMessage
@@ -68,13 +70,17 @@ class MemorywireChatMessageHistory(BaseChatMessageHistory):
     def messages(self) -> list[BaseMessage]:
         return list(self._cache)
 
+    @messages.setter
+    def messages(self, value: Sequence[BaseMessage]) -> None:
+        self._cache = list(value)
+
     def add_message(self, message: BaseMessage) -> None:
         _run(self.aadd_messages([message]))
 
-    def add_messages(self, messages: list[BaseMessage]) -> None:
+    def add_messages(self, messages: Sequence[BaseMessage]) -> None:
         _run(self.aadd_messages(messages))
 
-    async def aadd_messages(self, messages: list[BaseMessage]) -> None:
+    async def aadd_messages(self, messages: Sequence[BaseMessage]) -> None:
         for m in messages:
             source = _SOURCE.get(m.type, "unknown")
             content = m.content if isinstance(m.content, str) else str(m.content)
@@ -103,7 +109,9 @@ class MemorywireChatMessageHistory(BaseChatMessageHistory):
         self._ids.clear()
 
     # --- the payoff -------------------------------------------------------------------
-    async def arecover(self, *, trusted_sources: set[str] | None = None, **kwargs: Any) -> dict:
+    async def arecover(
+        self, *, trusted_sources: set[str] | None = None, **kwargs: Any
+    ) -> dict[str, Any]:
         """Detect and recover poisoned memory in this history's store.
 
         In a conversation the trusted participants are the user, the system prompt, and the
@@ -117,5 +125,5 @@ class MemorywireChatMessageHistory(BaseChatMessageHistory):
         report = await Recoverer(self._mem, trusted_sources=trusted).recover(**kwargs)
         return report.to_dict()
 
-    def recover(self, **kwargs: Any) -> dict:
-        return _run(self.arecover(**kwargs))
+    def recover(self, **kwargs: Any) -> dict[str, Any]:
+        return cast("dict[str, Any]", _run(self.arecover(**kwargs)))

@@ -12,6 +12,7 @@ run pluggable content detectors (including OWASP Agent Memory Guard's).
     report = await rec.recover(dry_run=True)
     print(report.to_text())
 """
+
 from __future__ import annotations
 
 from .engine import Recoverer
@@ -19,10 +20,10 @@ from .report import EntryVerdict, MemoryRecord, RecoveryReport, Verdict
 from .strategies import classify, directive_detector
 
 __all__ = [
-    "Recoverer",
-    "RecoveryReport",
     "EntryVerdict",
     "MemoryRecord",
+    "Recoverer",
+    "RecoveryReport",
     "Verdict",
     "classify",
     "directive_detector",

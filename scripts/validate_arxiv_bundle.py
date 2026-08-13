@@ -36,7 +36,9 @@ def main() -> int:
     line = "=" * 70
     print(line)
     print(f"Bundle: {ROOT}")
-    print(f"Sizes : memorywire-paper.tex={len(tex):,} chars | memorywire.bib={len(bib_text):,} chars")
+    print(
+        f"Sizes : memorywire-paper.tex={len(tex):,} chars | memorywire.bib={len(bib_text):,} chars"
+    )
     print(line)
 
     failures: list[str] = []
@@ -52,14 +54,11 @@ def main() -> int:
     ends = re.findall(r"\\end\{(\w+)\}", tex)
     b_count, e_count = Counter(begins), Counter(ends)
     mismatched = {
-        k: (b_count[k], e_count[k])
-        for k in set(begins) | set(ends)
-        if b_count[k] != e_count[k]
+        k: (b_count[k], e_count[k]) for k in set(begins) | set(ends) if b_count[k] != e_count[k]
     }
     if mismatched:
         failures.append(f"begin/end mismatch: {mismatched}")
-    print(f"[2] begin/end balance    : "
-          f"{'OK' if not mismatched else 'MISMATCH ' + str(mismatched)}")
+    print(f"[2] begin/end balance    : {'OK' if not mismatched else 'MISMATCH ' + str(mismatched)}")
 
     # 3. BibTeX
     bib_db = bibtexparser.loads(bib_text)
@@ -101,7 +100,9 @@ def main() -> int:
         failures.append(f"refs without labels: {sorted(missing_refs)}")
         print(f"      MISSING LABELS       = {sorted(missing_refs)}")
     if unused_labels:
-        print(f"      unused labels        = {sorted(unused_labels)[:5]}{'...' if len(unused_labels) > 5 else ''}")
+        print(
+            f"      unused labels        = {sorted(unused_labels)[:5]}{'...' if len(unused_labels) > 5 else ''}"
+        )
 
     # 6. Figures
     fig_re = re.compile(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}")

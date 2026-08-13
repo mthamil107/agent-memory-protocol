@@ -84,9 +84,10 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     remember.add_argument("--user", dest="user_id", default=None, help="Optional user_id scope.")
     remember.add_argument(
-        "--source", default=None,
+        "--source",
+        default=None,
         help="Provenance of this memory (e.g. user, system, web_page, tool_result). "
-             "Used by `memorywire recover`.",
+        "Used by `memorywire recover`.",
     )
     remember.add_argument(
         "--confidence",
@@ -145,27 +146,35 @@ def _build_parser() -> argparse.ArgumentParser:
         "recover", help="Detect and recover poisoned memory (provenance + detectors)."
     )
     recover.add_argument(
-        "--trusted", default="user,system",
+        "--trusted",
+        default="user,system",
         help="Comma-separated trusted sources (default: user,system).",
     )
     recover.add_argument(
-        "--expire-low-conf", action="store_true",
+        "--expire-low-conf",
+        action="store_true",
         help="Also expire low-confidence memories.",
     )
     recover.add_argument(
-        "--confidence-below", type=float, default=0.75,
+        "--confidence-below",
+        type=float,
+        default=0.75,
         help="Confidence threshold for --expire-low-conf (default: 0.75).",
     )
     recover.add_argument(
-        "--detectors", action="store_true",
+        "--detectors",
+        action="store_true",
         help="Run built-in content detectors in addition to provenance.",
     )
     recover.add_argument(
-        "--no-quarantine", dest="quarantine", action="store_false",
+        "--no-quarantine",
+        dest="quarantine",
+        action="store_false",
         help="Do not quarantine suspicious trusted-origin memories.",
     )
     recover.add_argument(
-        "--hard", action="store_true",
+        "--hard",
+        action="store_true",
         help="Hard-delete purged poison (default: soft-delete, restorable).",
     )
     recover.add_argument(
@@ -179,7 +188,9 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     graph.add_argument("--report", default="memorywire-graph.html", help="Output HTML file path.")
     graph.add_argument(
-        "--trusted", default="user,system", help="Comma-separated trusted sources (default: user,system)."
+        "--trusted",
+        default="user,system",
+        help="Comma-separated trusted sources (default: user,system).",
     )
     graph.add_argument("--title", default="memorywire trust graph", help="Report title.")
     _add_common_flags(graph)
@@ -346,6 +357,7 @@ async def _handle_recover(args: argparse.Namespace) -> int:
     detectors = None
     if args.detectors:
         from memorywire.recovery.strategies import directive_detector
+
         detectors = [directive_detector]
 
     mem = Memory(agent_id=args.agent_id, stores=_resolve_stores(args))
