@@ -28,7 +28,7 @@ clean = re.sub(r"\\Cref\{[^}]+\}", "the relevant section", clean)
 clean = re.sub(r"\\ref\{[^}]+\}", "", clean)
 clean = clean.replace(r"\&", "&").replace(r"\%", "%").replace(r"\#", "#").replace(r"\$", "$")
 clean = re.sub(r"\\\\", " ", clean)
-clean = clean.replace("---", "â€”").replace("--", "â€“")
+clean = clean.replace("---", "—").replace("--", "–")  # noqa: RUF001 -- deliberately emits em/en dashes
 # Strip math-mode delimiters; arXiv's text field renders math as text.
 clean = re.sub(r"\$([^$]+)\$", r"\1", clean)
 # Replace common math symbols with plain-text equivalents.
@@ -44,7 +44,7 @@ clean = clean.replace(r"\times", "x")
 clean = re.sub(r"\s+", " ", clean).strip()
 
 print("=" * 72)
-print(" PASTE THIS INTO arXiv's 'Abstract' field â€” plain text ready")
+print(" PASTE THIS INTO arXiv's 'Abstract' field — plain text ready")
 print("=" * 72)
 print()
 print(clean)

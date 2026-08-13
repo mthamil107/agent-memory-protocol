@@ -118,7 +118,7 @@ def test_pgvectorstore_is_a_memory_store() -> None:
 
 
 def test_constructor_requires_dsn_or_pool() -> None:
-    """Neither ``dsn`` nor ``pool`` â†’ :class:`ValueError`."""
+    """Neither ``dsn`` nor ``pool`` → :class:`ValueError`."""
     with pytest.raises(ValueError, match="dsn"):
         PgVectorStore()
 
@@ -182,7 +182,7 @@ def test_from_url_default_reads_database_url_env(monkeypatch: pytest.MonkeyPatch
 
 
 def test_from_url_default_without_env_raises(monkeypatch: pytest.MonkeyPatch) -> None:
-    """``pgvector://default`` with no ``DATABASE_URL`` â†’ :class:`ValueError`."""
+    """``pgvector://default`` with no ``DATABASE_URL`` → :class:`ValueError`."""
     monkeypatch.delenv("DATABASE_URL", raising=False)
     with pytest.raises(ValueError, match="DATABASE_URL"):
         PgVectorStore.from_url("pgvector://default")
@@ -206,7 +206,7 @@ async def test_ensure_schema_runs_create_statements_once() -> None:
     # Each DDL statement is one ``conn.execute`` call.
     first_calls = conn.execute.call_count
     assert first_calls >= 5
-    # Capture the SQL that was issued â€” must include extension/schema/table.
+    # Capture the SQL that was issued — must include extension/schema/table.
     sqls = "\n".join(str(call.args[0]) for call in conn.execute.call_args_list)
     assert "CREATE EXTENSION IF NOT EXISTS vector" in sqls
     assert "CREATE SCHEMA IF NOT EXISTS memorywire" in sqls
@@ -488,7 +488,7 @@ async def test_forget_by_filter_runs_select_then_update() -> None:
 
 
 async def test_forget_without_ids_or_filter_raises() -> None:
-    """No-scope mass delete must raise per spec Â§3.3 Editor's note."""
+    """No-scope mass delete must raise per spec §3.3 Editor's note."""
     store, _ = _make_store()
     with pytest.raises(ValueError, match="ids` or `filter"):
         await store.forget(ForgetRequest(agent_id="agent-a"))
@@ -631,7 +631,7 @@ async def test_merge_content_writes_concatenated_survivor() -> None:
 
 
 async def test_expire_empty_policy_raises() -> None:
-    """Spec Â§3.5: empty policy must raise so it can't mass-delete."""
+    """Spec §3.5: empty policy must raise so it can't mass-delete."""
     store, _ = _make_store()
     with pytest.raises(ValueError, match="non-empty policy"):
         await store.expire(ExpireRequest(agent_id="agent-a", policy=ExpirePolicy()))

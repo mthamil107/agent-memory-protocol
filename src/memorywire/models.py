@@ -8,7 +8,7 @@ discriminated :data:`Memory` union keyed on the ``type`` literal.
 Design notes
 ------------
 * All models set ``extra="allow"`` so forward-compatible additional fields
-  (per spec section 9: "new optional fields Ã¢â‚¬â€ allowed at any time") do not
+  (per spec section 9: "new optional fields — allowed at any time") do not
   break parsing.
 * All models set ``populate_by_name=True`` so callers may use either the
   pydantic field name or the JSON Schema field name when constructing.
@@ -18,8 +18,8 @@ Design notes
 * Types use ``X | None`` (PEP 604) per Python 3.11+ convention.
 
 The ``MergeResponse`` and ``ExpireResponse`` models do not have authored JSON
-Schemas at v0 Ã¢â‚¬â€ see :file:`docs/spec/notes.md` for the rationale. Their fields
-follow the Editor's-note shapes in :file:`docs/spec/v0.md` Ã‚Â§3.4 and Ã‚Â§3.5.
+Schemas at v0 — see :file:`docs/spec/notes.md` for the rationale. Their fields
+follow the Editor's-note shapes in :file:`docs/spec/v0.md` §3.4 and §3.5.
 """
 
 from __future__ import annotations
@@ -142,7 +142,7 @@ class ForgetRequest(BaseModel):
     Note: spec section 3.3 says servers MUST reject requests where both
     ``ids`` and ``filter`` are absent (no-scope mass-delete protection). That
     rule is policy-level, enforced at the store/router layer, not by the
-    request shape itself Ã¢â‚¬â€ both fields remain optional here.
+    request shape itself — both fields remain optional here.
     """
 
     model_config = _AMP_MODEL_CONFIG
@@ -223,7 +223,7 @@ class RecallHit(BaseModel):
     :file:`src/memorywire/schemas/operations/recall.response.json`.
 
     ``content`` may be a string (semantic/episodic/emotional) or a dict
-    (procedural FSM) Ã¢â‚¬â€ per the response schema's ``["string", "object"]``
+    (procedural FSM) — per the response schema's ``["string", "object"]``
     type union.
     """
 
@@ -240,7 +240,7 @@ class RecallHit(BaseModel):
     source_store: str | None = None
 
 
-# Public alias Ã¢â‚¬â€ the spec doc (section 1) names the result shape ``Recall`` for
+# Public alias — the spec doc (section 1) names the result shape ``Recall`` for
 # clients. ``RecallHit`` is kept as the canonical class name so other modules
 # can import either.
 Recall = RecallHit
@@ -281,7 +281,7 @@ class ForgetResponse(BaseModel):
     """Response payload from the ``forget`` operation.
 
     Mirrors :file:`src/memorywire/schemas/operations/forget.response.json` (the
-    response shape is inferred Ã¢â‚¬â€ see Editor's note in spec section 3.3).
+    response shape is inferred — see Editor's note in spec section 3.3).
     """
 
     model_config = _AMP_MODEL_CONFIG
@@ -342,7 +342,7 @@ class MemoryRecord(BaseModel):
     user_id: str | None = Field(default=None, max_length=256)
     type: MemoryType
     # Stored as a string for all types in v0 (procedural memories carry the
-    # FSM JSON inside the string Ã¢â‚¬â€ see spec section 7). Procedural records
+    # FSM JSON inside the string — see spec section 7). Procedural records
     # expose ``.fsm()`` for the parsed view.
     content: str
     metadata: dict[str, Any] | None = None
@@ -378,7 +378,7 @@ class ProceduralMemory(MemoryRecord):
     """A procedural memory record (an FSM-encoded how-to procedure).
 
     The ``content`` field carries the FSM as a JSON-encoded *string* in v0
-    (per spec section 7 Ã¢â‚¬â€ "the FSM JSON is currently carried as a string in
+    (per spec section 7 — "the FSM JSON is currently carried as a string in
     `content`"). Phase 5 will swap the return type of :meth:`fsm` to a real
     :class:`Procedure` class; at Phase 2 it returns the parsed dict.
     """
@@ -402,7 +402,7 @@ class ProceduralMemory(MemoryRecord):
         ValueError
             If ``content`` is not valid JSON or does not decode to an object.
         """
-        # Imported lazily Ã¢â‚¬â€ ``json`` is stdlib so this is essentially free,
+        # Imported lazily — ``json`` is stdlib so this is essentially free,
         # but importing at call time documents that the parse is on-demand.
         import json
 
@@ -448,7 +448,7 @@ class ProcedureTransition(BaseModel):
 
     Matches the ``content.transitions[]`` shape in
     :file:`src/memorywire/schemas/types/procedural.json`. Extra keys are allowed
-    (``conditions``, ``unless``, ``before``, ``after``, Ã¢â‚¬Â¦) so pytransitions
+    (``conditions``, ``unless``, ``before``, ``after``, …) so pytransitions
     adapters can round-trip backend-specific extras.
     """
 

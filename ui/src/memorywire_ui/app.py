@@ -57,7 +57,7 @@ def create_app(
         Optional bearer-token for the governance API. When set, every
         request must carry ``Authorization: Bearer <token>`` (server
         clients) or the ``memorywire_ui_session=<token>`` cookie (browsers).
-        When unset, auth is a no-op Ã¢â‚¬â€ preserved as the opt-in default
+        When unset, auth is a no-op — preserved as the opt-in default
         so local dev keeps working without ceremony.
     csrf_secret:
         HMAC secret used to sign CSRF tokens. When ``None`` a fresh
@@ -124,7 +124,7 @@ def create_app(
     )
 
     # Attach shared state for the route modules. Stored on ``app.state``
-    # rather than module globals so the factory remains pure Ã¢â‚¬â€ tests can
+    # rather than module globals so the factory remains pure — tests can
     # build multiple isolated apps against different databases.
     app.state.db_path = str(resolved_db)
     app.state.agent_id = agent_id

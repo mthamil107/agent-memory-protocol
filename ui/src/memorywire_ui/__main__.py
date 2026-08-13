@@ -5,7 +5,7 @@ Reads ``MEMORYWIRE_UI_DB_PATH``, ``MEMORYWIRE_UI_AGENT_ID``, ``MEMORYWIRE_UI_HOS
 environment, builds the Starlette app via :func:`amp_ui.app.create_app`,
 and hands it to ``uvicorn.run``.
 
-``MEMORYWIRE_UI_TOKEN`` Ã¢â‚¬â€ when set, gates every request behind that bearer
+``MEMORYWIRE_UI_TOKEN`` — when set, gates every request behind that bearer
 token. **Required** when ``MEMORYWIRE_UI_HOST`` resolves to any non-loopback
 address (anything other than ``127.0.0.1`` / ``localhost`` / ``::1``);
 the process refuses to start in that configuration and exits with code
@@ -14,7 +14,7 @@ governance UI to the public internet. Set
 ``MEMORYWIRE_UI_ALLOW_UNAUTHENTICATED_PUBLIC=1`` to explicitly opt out of the
 check (e.g. demo-only deployments fronted by their own auth layer).
 
-``MEMORYWIRE_UI_CSRF_SECRET`` Ã¢â‚¬â€ base64-encoded HMAC secret (>= 16 raw bytes)
+``MEMORYWIRE_UI_CSRF_SECRET`` — base64-encoded HMAC secret (>= 16 raw bytes)
 used to sign CSRF tokens. When unset a fresh random secret is generated
 per-process, which invalidates every browser session across restarts.
 Pin it in production so cookies survive restarts; rotate it to log
@@ -38,7 +38,7 @@ from memorywire_ui.app import create_app
 CSRF_SECRET_ENV_VAR = "MEMORYWIRE_UI_CSRF_SECRET"
 _MIN_CSRF_SECRET_BYTES = 16
 
-# Hostnames that bind only to the local machine Ã¢â‚¬â€ safe to run without
+# Hostnames that bind only to the local machine — safe to run without
 # MEMORYWIRE_UI_TOKEN because nothing off-box can reach the listener.
 _LOOPBACK_HOSTS: frozenset[str] = frozenset({"127.0.0.1", "localhost", "::1"})
 
@@ -55,7 +55,7 @@ def _assert_safe_public_config(
     host:
         The value of ``MEMORYWIRE_UI_HOST`` (or equivalent CLI arg). Anything
         outside ``{127.0.0.1, localhost, ::1}`` is treated as a
-        potentially public bind Ã¢â‚¬â€ including the catch-all ``0.0.0.0``
+        potentially public bind — including the catch-all ``0.0.0.0``
         and ``::`` that Fly.io's ``fly.toml`` defaults to.
     token:
         The value of ``MEMORYWIRE_UI_TOKEN``. ``None`` or empty string means
@@ -71,7 +71,7 @@ def _assert_safe_public_config(
     SystemExit
         With code 1 and a clear stderr message when ``host`` is a
         non-loopback address, ``token`` is empty, and ``allow_unauth``
-        is false. The caller does NOT need to catch this Ã¢â‚¬â€ the goal is
+        is false. The caller does NOT need to catch this — the goal is
         to terminate the boot before uvicorn binds the port.
     """
     is_loopback = host.strip().lower() in _LOOPBACK_HOSTS

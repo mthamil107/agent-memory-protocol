@@ -16,7 +16,7 @@ It is doubly gated:
   build its knowledge graph is not configured.
 
 Cognee runs an embedded pipeline (LanceDB vector store + Kuzu graph
-DB) so no external service URL is required â€” just an LLM key for the
+DB) so no external service URL is required — just an LLM key for the
 ``cognify`` step.
 
 Run with: ``pytest -m integration tests/integration/store/test_cognee_adapter.py``.

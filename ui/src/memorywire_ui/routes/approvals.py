@@ -1,4 +1,4 @@
-"""Pending Approvals screen â€” the home page (``/``).
+"""Pending Approvals screen — the home page (``/``).
 
 GET ``/`` renders every pending memory awaiting HITL review. The page
 auto-refreshes every 10s via HTMX; each row carries Approve / Reject
@@ -24,7 +24,7 @@ def _templates(request: Request) -> Jinja2Templates:
 
 
 async def list_pending(request: Request) -> Response:
-    """GET ``/`` â€” render the pending-approvals list."""
+    """GET ``/`` — render the pending-approvals list."""
     db_path: str = request.app.state.db_path
     agent_id: str = request.app.state.agent_id
 
@@ -41,7 +41,7 @@ async def list_pending(request: Request) -> Response:
 
 
 async def approve(request: Request) -> Response:
-    """POST ``/approvals/{memory_id}/approve`` â€” flip the row to approved.
+    """POST ``/approvals/{memory_id}/approve`` — flip the row to approved.
 
     Scoped to ``app.state.agent_id``; cross-agent or non-pending targets
     raise :class:`services.NotPendingError`, which we map to a 404 so the
@@ -61,7 +61,7 @@ async def approve(request: Request) -> Response:
 
 
 async def reject(request: Request) -> Response:
-    """POST ``/approvals/{memory_id}/reject`` â€” soft-delete the row.
+    """POST ``/approvals/{memory_id}/reject`` — soft-delete the row.
 
     Same agent-scope / 404-on-mismatch behaviour as :func:`approve`.
     """

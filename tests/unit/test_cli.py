@@ -6,7 +6,7 @@ Two flavours of coverage:
   duplicated here (kept green by leaving the subparser top-level intact).
 * Subcommand happy-paths and error paths use a patched
   :func:`memorywire.api._build_store` so the CLI runs against an in-process
-  :class:`MockStore` Ã¢â‚¬â€ no sqlite-vec / mem0 deps required.
+  :class:`MockStore` — no sqlite-vec / mem0 deps required.
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ from memorywire.models import (
 )
 
 # ---------------------------------------------------------------------------
-# CLI MockStore Ã¢â‚¬â€ keyed by URL so multiple --store flags share state across
+# CLI MockStore — keyed by URL so multiple --store flags share state across
 # Memory() instantiations within a single CLI invocation.
 # ---------------------------------------------------------------------------
 
@@ -162,7 +162,7 @@ class CliMockStore:
         return {"status": "ok", "backend": self.BACKEND_NAME}
 
     def close(self) -> None:
-        # Don't drop the registry entry Ã¢â‚¬â€ recall/forget invocations in a
+        # Don't drop the registry entry — recall/forget invocations in a
         # later test step depend on remember's state surviving.
         pass
 
@@ -249,7 +249,7 @@ def test_cli_version_subprocess() -> None:
 
 
 def test_cli_help_subprocess() -> None:
-    """``amp --help`` exits 0 Ã¢â‚¬â€ exercise the full entry point too."""
+    """``amp --help`` exits 0 — exercise the full entry point too."""
     result = subprocess.run(
         [sys.executable, "-m", "memorywire.cli", "--help"],
         capture_output=True,

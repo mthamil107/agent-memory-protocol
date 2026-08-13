@@ -1,7 +1,7 @@
-"""STMâ†”LTM transformer â€” consolidate short-term memory into long-term storage.
+"""STM↔LTM transformer — consolidate short-term memory into long-term storage.
 
 This is the reference implementation for the consolidator sketched in
-:file:`docs/kickoff/ARCHITECTURE.md` Â§7. The transformer is an always-on
+:file:`docs/kickoff/ARCHITECTURE.md` §7. The transformer is an always-on
 async background task that:
 
 1. Watches an in-memory STM (short-term memory) buffer of recent ops.
@@ -18,17 +18,17 @@ async background task that:
 
 Design notes
 ------------
-* The transformer is *not* itself a :class:`memorywire.store.MemoryStore` â€” it is a
+* The transformer is *not* itself a :class:`memorywire.store.MemoryStore` — it is a
   layer in *front* of one. The ``target`` argument is duck-typed against
   the :class:`MemoryStore` protocol's :meth:`remember` method; either an
   individual store or a :class:`memorywire.router.MemoryRouter` works.
 * All mutation of the STM buffer is guarded by an :class:`asyncio.Lock` so
   concurrent ``push`` / ``tick`` / ``record_recall`` calls cannot race.
 * The background task created by :meth:`start` is cancellable and
-  idempotent â€” calling ``start()`` twice is a no-op; ``stop()`` cancels,
+  idempotent — calling ``start()`` twice is a no-op; ``stop()`` cancels,
   awaits termination, suppresses the cancel exception, and runs one final
   drain ``tick`` so anything still in STM gets a last consolidation pass.
-* The built-in scorer matches the formula spelled out in the task brief â€”
+* The built-in scorer matches the formula spelled out in the task brief —
   it is intentionally simple. Production deployments should pass a custom
   ``scorer`` callable.
 * :func:`time.time` is the default clock; tests can inject a deterministic
@@ -56,7 +56,7 @@ logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
-# STMItem â€” pydantic model for in-buffer entries
+# STMItem — pydantic model for in-buffer entries
 # ---------------------------------------------------------------------------
 
 
@@ -100,7 +100,7 @@ class STMItem(BaseModel):
 
 
 # ---------------------------------------------------------------------------
-# TickResult â€” return value of a consolidation pass
+# TickResult — return value of a consolidation pass
 # ---------------------------------------------------------------------------
 
 
@@ -197,7 +197,7 @@ class STMToLTMTransformer:
         self._clock: ClockFn = clock if clock is not None else time.time
 
         # The buffer itself. Deque gives O(1) push and arbitrary remove via
-        # rebuild â€” we don't expect deletions in the hot path because tick
+        # rebuild — we don't expect deletions in the hot path because tick
         # rebuilds the buffer with only the kept items.
         self._stm: deque[STMItem] = deque()
         # Guards every mutation of self._stm. async-aware so push/tick can
@@ -278,7 +278,7 @@ class STMToLTMTransformer:
         Returns ``True`` if a match was found and incremented; ``False``
         otherwise (e.g. the item has already been consolidated/evicted, or
         was never pushed). The intended caller is the memory router after a
-        successful recall hit; for v0 this is just a hook â€” wiring is left
+        successful recall hit; for v0 this is just a hook — wiring is left
         to the application.
         """
         async with self._lock:
@@ -289,7 +289,7 @@ class STMToLTMTransformer:
         return False
 
     # ------------------------------------------------------------------
-    # tick â€” one consolidation pass
+    # tick — one consolidation pass
     # ------------------------------------------------------------------
 
     async def tick(self) -> TickResult:
@@ -300,11 +300,11 @@ class STMToLTMTransformer:
         * Snapshot the buffer under the lock, then release the lock so
           async :meth:`remember` calls don't block other producers.
         * For each item, compute ``scorer(item)``:
-            - ``score >= threshold`` â†’ call ``target.remember(...)``. On
+            - ``score >= threshold`` → call ``target.remember(...)``. On
               success, fire ``on_consolidate`` and remove from STM.
             - ``score < threshold`` AND item older than
-              ``cadence_seconds * 2`` â†’ fire ``on_evict``, drop.
-            - Otherwise â†’ keep in STM, count as skipped.
+              ``cadence_seconds * 2`` → fire ``on_evict``, drop.
+            - Otherwise → keep in STM, count as skipped.
         * Re-acquire the lock and rewrite the buffer with the survivors.
 
         Items that raise during ``remember()`` stay in STM; the error is
@@ -374,7 +374,7 @@ class STMToLTMTransformer:
             result.skipped += 1
 
         # Rewrite the buffer with the survivors. Items pushed *during* the
-        # consolidation pass aren't in our snapshot â€” preserve them so we
+        # consolidation pass aren't in our snapshot — preserve them so we
         # don't lose concurrent writers' data.
         snapshot_ids: set[str] = {it.id for it in snapshot}
         async with self._lock:
@@ -415,7 +415,7 @@ class STMToLTMTransformer:
             try:
                 await task
             except asyncio.CancelledError:
-                # Expected â€” we cancelled it.
+                # Expected — we cancelled it.
                 pass
             except Exception as exc:
                 logger.warning("background task raised during stop: %s", exc)
@@ -477,7 +477,7 @@ class STMToLTMTransformer:
         return raw
 
     def _default_scorer(self, item: STMItem) -> float:
-        """Built-in heuristic from the task brief / ARCHITECTURE Â§7.
+        """Built-in heuristic from the task brief / ARCHITECTURE §7.
 
         ``score = 0.5*importance + 0.2*min(1, recall_count/5)
                  + 0.2*max(0, 1 - age_seconds/3600)

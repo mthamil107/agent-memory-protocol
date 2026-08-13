@@ -7,9 +7,9 @@ pure function of two input dicts so it is easy to unit-test.
 
 The result shape mirrors :class:`memorywire.models.MemoryDiff`:
 
-* ``added``    â€” keys present in the pending row but not in the current row.
-* ``removed``  â€” keys present in the current row but not in the pending row.
-* ``modified`` â€” keys present in both with different values; each entry
+* ``added``    — keys present in the pending row but not in the current row.
+* ``removed``  — keys present in the current row but not in the pending row.
+* ``modified`` — keys present in both with different values; each entry
   carries both ``before`` and ``after`` so the UI can render them side by
   side.
 
@@ -21,7 +21,7 @@ from __future__ import annotations
 
 from typing import Any
 
-# Fields that are bookkeeping noise for human reviewers â€” they change every
+# Fields that are bookkeeping noise for human reviewers — they change every
 # write and never carry semantic meaning. Excluded from the diff to keep the
 # rendered output focused on what actually changes between memories.
 _IGNORED_FIELDS: frozenset[str] = frozenset(
@@ -57,7 +57,7 @@ def diff_memories(
     ----------
     pending:
         The row awaiting approval (``deleted_at = -1``). May be ``None`` if
-        the row vanished between query and render â€” the diff then degrades
+        the row vanished between query and render — the diff then degrades
         to "everything was removed".
     current:
         The live counterpart, or ``None`` if no match was found. When

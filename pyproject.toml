@@ -117,12 +117,7 @@ select = [
   "SIM",           # flake8-simplify
   "RUF",           # ruff-specific
 ]
-ignore = [
-  "E501",             # line length enforced by formatter
-  # Intentional typography in prose docstrings/comments/strings
-  # (em dashes, curly quotes, arrows) — deliberate, not defects.
-  "RUF001", "RUF002", "RUF003",
-]
+ignore = ["E501"]  # line length enforced by formatter
 
 [tool.ruff.format]
 quote-style = "double"

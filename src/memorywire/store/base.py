@@ -2,11 +2,11 @@
 
 Spec section 4 fixes this surface. The router (Phase 4) is itself a
 ``MemoryStore`` composed of N child stores; adapters in Phase 3
-(sqlite-vec, mem0, â€¦) implement this same Protocol.
+(sqlite-vec, mem0, …) implement this same Protocol.
 
 ``@runtime_checkable`` is applied so adapter tests can use
 ``isinstance(adapter, MemoryStore)`` for a structural check. Note that
-``runtime_checkable`` only verifies method *names*, not signatures â€” the
+``runtime_checkable`` only verifies method *names*, not signatures — the
 authoritative contract is still the type annotations here, enforced by
 mypy at static-check time.
 """
@@ -34,8 +34,8 @@ class Capability:
 
     These are the values the router (Phase 4) uses to decide which child
     stores to fan a given operation out to (e.g. skip a vector-only store
-    on a graph-hop query). The set is open â€” backends MAY declare
-    additional strings â€” but these names are the canonical ones used by
+    on a graph-hop query). The set is open — backends MAY declare
+    additional strings — but these names are the canonical ones used by
     the reference implementation.
     """
 
@@ -59,7 +59,7 @@ class Capability:
 class MemoryStore(Protocol):
     """Protocol every memorywire backend (and the router itself) implements.
 
-    See :file:`docs/spec/v0.md` Â§4 for the normative definition. All
+    See :file:`docs/spec/v0.md` §4 for the normative definition. All
     operations are asynchronous; backends that wrap synchronous libraries
     should run them in a thread/executor.
     """

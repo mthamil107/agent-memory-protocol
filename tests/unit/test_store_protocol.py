@@ -1,6 +1,6 @@
 """Tests for the :class:`memorywire.store.MemoryStore` Protocol.
 
-We define a tiny in-memory ``MockStore`` here (not in ``src/`` â€” adapters
+We define a tiny in-memory ``MockStore`` here (not in ``src/`` — adapters
 under ``src/memorywire/store/`` are Phase 3 deliverables) and use it both to
 sanity-check the Protocol's structural shape and to exercise the
 round-trip path through the request/response models.
@@ -42,7 +42,7 @@ class MockStore:
 
     Used only inside the test suite. The store keeps records in a flat dict
     keyed by id and runs naive substring matching for ``recall``. It is
-    deliberately small â€” adapters under :mod:`memorywire.store` carry the real
+    deliberately small — adapters under :mod:`memorywire.store` carry the real
     semantics.
     """
 
@@ -58,7 +58,7 @@ class MockStore:
     async def remember(self, req: RememberRequest) -> RememberResponse:
         """Store one memory and return the response.
 
-        Uses :func:`uuid.uuid4` for ids â€” spec-gap: uuid7 is preferred for
+        Uses :func:`uuid.uuid4` for ids — spec-gap: uuid7 is preferred for
         time-ordered ids but is not in the Python stdlib yet (added in
         3.14). When the runtime is 3.14+ the implementation should switch
         to ``uuid.uuid7``.
@@ -195,7 +195,7 @@ class MockStore:
 
 
 # ---------------------------------------------------------------------------
-# Filter helpers â€” pulled out of MockStore for readability.
+# Filter helpers — pulled out of MockStore for readability.
 # ---------------------------------------------------------------------------
 
 

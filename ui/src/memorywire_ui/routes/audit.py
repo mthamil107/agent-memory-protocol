@@ -46,7 +46,7 @@ def _int_query(request: Request, key: str, default: int) -> int:
 
 
 async def list_rows(request: Request) -> Response:
-    """GET ``/audit`` â€” paginated, filterable audit-log view."""
+    """GET ``/audit`` — paginated, filterable audit-log view."""
     db_path: str = request.app.state.db_path
     filters = _filters_from_query(request)
     limit = _int_query(request, "limit", _DEFAULT_LIMIT)
@@ -76,7 +76,7 @@ async def list_rows(request: Request) -> Response:
 
 
 async def export(request: Request) -> Response:
-    """GET ``/audit/export?format=...`` â€” JSON or CSV download."""
+    """GET ``/audit/export?format=...`` — JSON or CSV download."""
     db_path: str = request.app.state.db_path
     fmt = request.query_params.get("format", "json").lower()
     if fmt not in {"json", "csv"}:

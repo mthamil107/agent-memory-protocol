@@ -68,7 +68,7 @@ checks = [
 for label, needle in checks:
     found = needle in all_text
     mark = "  OK " if found else " MISS"
-    # Last check is inverted â€” we want it NOT found
+    # Last check is inverted — we want it NOT found
     if label.startswith("Old name placeholder absent"):
         mark = "  OK " if not found else " FAIL"
     print(f"  [{mark.strip()}] {label:38s}  ({'present' if found else 'absent'})")

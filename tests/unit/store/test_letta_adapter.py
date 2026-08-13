@@ -1,7 +1,7 @@
 """Unit tests for :class:`memorywire.store.letta_adapter.LettaStore`.
 
 These tests use :class:`unittest.mock.MagicMock` to stand in for the real
-``letta_client.Letta`` client â€” the Letta SDK is never touched. The goal
+``letta_client.Letta`` client — the Letta SDK is never touched. The goal
 is to prove the adapter translates memorywire requests into the right Letta
 calls and maps the mocked responses back into the memorywire response models.
 
@@ -155,7 +155,7 @@ async def test_remember_calls_passages_create_with_encoded_tags() -> None:
 
 
 async def test_remember_with_approval_required_skips_client() -> None:
-    """``approval_required=True`` short-circuits â€” no Letta call, ``pending_approval``."""
+    """``approval_required=True`` short-circuits — no Letta call, ``pending_approval``."""
     client = _make_client()
     store = LettaStore(client=client, agent_id="ag-A")
 
@@ -326,7 +326,7 @@ async def test_forget_by_ids_calls_delete_for_each() -> None:
 
 
 async def test_forget_without_ids_or_filter_raises() -> None:
-    """No-scope mass-delete protection (spec Â§3.3): must raise ``ValueError``."""
+    """No-scope mass-delete protection (spec §3.3): must raise ``ValueError``."""
     store = LettaStore(client=_make_client(), agent_id="ag-A")
     with pytest.raises(ValueError, match=r"ids.*filter"):
         await store.forget(ForgetRequest(agent_id="agent-a"))
@@ -477,7 +477,7 @@ async def test_expire_older_than_days_forget_deletes_matches() -> None:
 
 
 async def test_expire_no_recall_in_days_unsupported() -> None:
-    """``no_recall_in_days`` MUST raise â€” Letta lacks last-recalled-at tracking."""
+    """``no_recall_in_days`` MUST raise — Letta lacks last-recalled-at tracking."""
     store = LettaStore(client=_make_client(), agent_id="ag-A")
     with pytest.raises(ValueError, match="no_recall_in_days"):
         await store.expire(

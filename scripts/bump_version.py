@@ -7,7 +7,7 @@ agree and that any provided ``--target`` version is strictly greater than the
 manifest version.
 
 Hatch-vcs derives the actual installed version from the latest ``v*`` git tag,
-so the in-file values are *advisory* â€” they exist so editors and humans can see
+so the in-file values are *advisory* — they exist so editors and humans can see
 the intended version without running ``git describe``. release-please rewrites
 all three on merge.
 

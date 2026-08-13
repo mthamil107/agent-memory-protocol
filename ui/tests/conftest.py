@@ -6,11 +6,11 @@ schema matches production. A deterministic fake embedder is injected to keep
 
 Three fixture flavours:
 
-* :func:`seeded_db` â€” empty store + an ``insert_*`` helper. Tests choose their
+* :func:`seeded_db` — empty store + an ``insert_*`` helper. Tests choose their
   own data. Returns ``(db_path, helper)`` so each test stays explicit.
-* :func:`app_for_path` â€” convenience factory wrapping
+* :func:`app_for_path` — convenience factory wrapping
   :func:`amp_ui.app.create_app` for the configured db.
-* :func:`csrf_client` â€” convenience factory returning an ``httpx.AsyncClient``
+* :func:`csrf_client` — convenience factory returning an ``httpx.AsyncClient``
   pre-loaded with the CSRF cookie + ``X-CSRF-Token`` default header so
   existing POST tests don't have to hand-negotiate the double-submit token.
 """
@@ -154,7 +154,7 @@ def seeded_db(tmp_path: Path) -> Iterator[SeedHelper]:
 
 @pytest.fixture
 def app_for_path() -> Any:
-    """Factory: ``app_for_path(db_path, agent_id='default', **kwargs)`` â†’ Starlette app."""
+    """Factory: ``app_for_path(db_path, agent_id='default', **kwargs)`` → Starlette app."""
 
     def _build(db_path: str, agent_id: str = "default", **kwargs: Any) -> Any:
         return create_app(db_path=db_path, agent_id=agent_id, **kwargs)
@@ -164,7 +164,7 @@ def app_for_path() -> Any:
 
 @pytest.fixture
 def csrf_client() -> Any:
-    """Factory: ``csrf_client(app)`` â†’ context manager yielding an ``httpx.AsyncClient``.
+    """Factory: ``csrf_client(app)`` → context manager yielding an ``httpx.AsyncClient``.
 
     The returned client has its cookie jar primed by a single ``GET /``
     against the app (so the ``amp_ui_csrf`` cookie is set) and adds the

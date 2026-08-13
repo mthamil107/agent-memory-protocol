@@ -1,4 +1,4 @@
-"""Tests for :mod:`memorywire.procedural` â€” Procedure / ProcedureRunner / validation.
+"""Tests for :mod:`memorywire.procedural` — Procedure / ProcedureRunner / validation.
 
 These tests cover the Phase-5 FSM procedural-memory backend:
 
@@ -63,7 +63,7 @@ def _book_flight() -> Procedure:
 
 def test_validate_passes_on_simple_procedure() -> None:
     proc = _book_flight()
-    # No exception â†’ pass.
+    # No exception → pass.
     proc.validate()
 
 
@@ -194,7 +194,7 @@ def test_runner_unknown_trigger_raises_machine_error() -> None:
 
 def test_runner_wildcard_source_works_from_any_state() -> None:
     runner = ProcedureRunner(_book_flight())
-    # ``cancel`` declares source="*" â€” must work from initial.
+    # ``cancel`` declares source="*" — must work from initial.
     runner.trigger("cancel")
     assert runner.current == "cancelled"
 
@@ -272,13 +272,13 @@ def test_from_dict_accepts_procedure_without_current_and_defaults_to_initial() -
 
 
 # ---------------------------------------------------------------------------
-# Security: pytransitions callback keys are an RCE vector â€” reject them.
+# Security: pytransitions callback keys are an RCE vector — reject them.
 # ---------------------------------------------------------------------------
 
 
 @pytest.mark.parametrize("bad_key", ["before", "after", "prepare", "on_enter", "on_exit"])
 def test_validate_rejects_disallowed_transition_keys(bad_key: str) -> None:
-    """Reject pytransitions callback keys â€” they accept dotted strings that
+    """Reject pytransitions callback keys — they accept dotted strings that
     the engine resolves via ``__import__`` (arbitrary code execution).
     """
     blob: dict[str, Any] = {
@@ -318,7 +318,7 @@ def test_validate_rejects_conditions_string_with_dot() -> None:
 
 
 def test_validate_rejects_unless_list_with_dotted_string() -> None:
-    """``unless`` accepts a list â€” every string element is still constrained."""
+    """``unless`` accepts a list — every string element is still constrained."""
     blob: dict[str, Any] = {
         "name": "pwn",
         "initial": "a",
@@ -337,7 +337,7 @@ def test_validate_rejects_unless_list_with_dotted_string() -> None:
 
 
 def test_validate_accepts_conditions_bare_identifier() -> None:
-    """Bare identifiers in ``conditions`` are allowed â€” they resolve to
+    """Bare identifiers in ``conditions`` are allowed — they resolve to
     model attributes, not arbitrary imports.
     """
     blob: dict[str, Any] = {
@@ -353,7 +353,7 @@ def test_validate_accepts_conditions_bare_identifier() -> None:
             }
         ],
     }
-    # No exception â†’ allow-listed.
+    # No exception → allow-listed.
     validate_procedure_dict(blob)
 
 
@@ -364,7 +364,7 @@ def test_runner_strips_disallowed_keys_from_directly_built_procedure() -> None:
     callback strings into the underlying pytransitions Machine.
 
     We can't construct the runner with the bad keys directly because
-    ``Procedure.__post_init__`` doesn't run validation â€” that's the path
+    ``Procedure.__post_init__`` doesn't run validation — that's the path
     the defensive strip is guarding. After construction the runner must
     behave normally and not have wired any extra callbacks.
     """
@@ -373,7 +373,7 @@ def test_runner_strips_disallowed_keys_from_directly_built_procedure() -> None:
         states=["a", "b"],
         transitions=[
             # ``before`` / ``after`` would normally be flagged by
-            # validate_procedure_dict â€” but Procedure() itself does not
+            # validate_procedure_dict — but Procedure() itself does not
             # validate. The runner's expand step must strip them.
             {
                 "trigger": "go",
@@ -386,7 +386,7 @@ def test_runner_strips_disallowed_keys_from_directly_built_procedure() -> None:
         initial="a",
     )
     # The runner constructor calls procedure.validate() which now rejects
-    # the disallowed keys â€” so construction itself raises. That is the
+    # the disallowed keys — so construction itself raises. That is the
     # primary defence; the strip is belt-and-braces. Document the behaviour
     # we observe by asserting the validate-time error.
     with pytest.raises(ValueError, match=r"disallowed key"):

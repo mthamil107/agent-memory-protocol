@@ -9,7 +9,7 @@ FTS5 for keyword search.
 Design notes
 ------------
 * The canonical storage shape is defined in :file:`docs/kickoff/ARCHITECTURE.md`
-  Â§3. This module implements that shape with one deliberate dimension change:
+  §3. This module implements that shape with one deliberate dimension change:
   the kickoff document writes ``float[768]`` but the default embedder ships
   here is ``sentence-transformers/all-MiniLM-L6-v2``, which produces 384-d
   vectors. Constructor's ``embedding_dim`` parameter overrides the default if
@@ -17,7 +17,7 @@ Design notes
 * The store is composed of three tables that share rowids:
   ``memories`` (the canonical row), ``memories_vec`` (vec0 ANN), and
   ``memories_fts`` (FTS5 keyword). vec0 cannot be a content-table follower
-  the way FTS5 can â€” we manage its rows by hand. FTS5 *is* set up as a
+  the way FTS5 can — we manage its rows by hand. FTS5 *is* set up as a
   content-following virtual table on ``memories``.
 * SQLite is fundamentally synchronous; the Protocol is async. We wrap every
   blocking call in :func:`anyio.to_thread.run_sync` so the adapter is safe
@@ -26,7 +26,7 @@ Design notes
   use. Unit tests inject a fake embedder via the constructor to avoid
   pulling the model into CI.
 * ID generation uses :func:`uuid.uuid4` (hex). Python 3.14 will add
-  :func:`uuid.uuid7` which is more appropriate for time-ordered keys â€” the
+  :func:`uuid.uuid7` which is more appropriate for time-ordered keys — the
   switch is tracked but deferred until 3.14 is the floor (current floor is
   3.11). Recorded as a spec-gap deviation per spec section 2.
 * RRF is the intra-store fusion algorithm for v0; the router (Phase 4) does
@@ -34,7 +34,7 @@ Design notes
 
 Schema deviations from the kickoff document (each minor, each documented):
 
-* ``memories.last_recalled_at`` column added â€” required to honor
+* ``memories.last_recalled_at`` column added — required to honor
   ``expire(policy={"no_recall_in_days": ...})`` and to satisfy the
   :attr:`memorywire.store.Capability.RECALL_TRACKING` claim.
 * ``embedding float[384]`` rather than ``float[768]``; the dim is a
@@ -94,7 +94,7 @@ is awaiting governance approval (i.e. written via ``remember(approval_required=T
 
 Governance UIs and other downstream consumers should import this rather than
 hard-coding ``-1``. The OSS adapter treats the value as an invariant of the
-storage contract â€” any change here must bump :data:`SCHEMA_VERSION`.
+storage contract — any change here must bump :data:`SCHEMA_VERSION`.
 """
 # Backwards-compat alias for the previously private name; existing call sites
 # inside this module still use the underscore form. Keep the alias so any
@@ -119,7 +119,7 @@ def _now_ms() -> int:
 def _fts_quote(query: str) -> str:
     """Wrap an arbitrary user query for safe use inside an FTS5 MATCH clause.
 
-    FTS5 has its own query syntax (NEAR, AND, OR, column filters, â€¦). Users
+    FTS5 has its own query syntax (NEAR, AND, OR, column filters, …). Users
     pass natural language; we wrap each token in double quotes and join with
     space (implicit AND). Empty / whitespace-only strings return a literal
     no-match token so the SQL does not error.
@@ -280,7 +280,7 @@ class SqliteVecStore:
         if self._lazy_embedder is not None:
             return self._lazy_embedder
 
-        # Lazy import â€” sentence-transformers is an optional dependency. The
+        # Lazy import — sentence-transformers is an optional dependency. The
         # try/except gives a more actionable error than ImportError.
         try:
             from sentence_transformers import SentenceTransformer
@@ -315,7 +315,7 @@ class SqliteVecStore:
     def _init_schema(self) -> None:
         """Create the memorywire storage schema if it does not already exist."""
         ddl = [
-            # Canonical memories table â€” ARCHITECTURE.md Â§3 with the addition
+            # Canonical memories table — ARCHITECTURE.md §3 with the addition
             # of ``last_recalled_at`` for the recall_tracking capability.
             """
             CREATE TABLE IF NOT EXISTS memories (
@@ -345,12 +345,12 @@ class SqliteVecStore:
                 "CREATE VIRTUAL TABLE IF NOT EXISTS memories_fts USING fts5("
                 "content, content='memories', content_rowid='rowid')"
             ),
-            # vec0 ANN table â€” its rowid matches memories.rowid.
+            # vec0 ANN table — its rowid matches memories.rowid.
             (
                 "CREATE VIRTUAL TABLE IF NOT EXISTS memories_vec USING vec0("
                 f"embedding float[{self._embedding_dim}])"
             ),
-            # Procedures: FSM JSON blobs (ARCHITECTURE.md Â§3).
+            # Procedures: FSM JSON blobs (ARCHITECTURE.md §3).
             """
             CREATE TABLE IF NOT EXISTS procedures (
               id          TEXT PRIMARY KEY,
@@ -614,7 +614,7 @@ class SqliteVecStore:
         hits.sort(key=lambda h: h.score, reverse=True)
         hits = hits[:k]
 
-        # Update last_recalled_at for the rows we surfaced. Best-effort â€”
+        # Update last_recalled_at for the rows we surfaced. Best-effort —
         # never fail the recall on a tracker write.
         if hits:
             now = _now_ms()
@@ -833,7 +833,7 @@ class SqliteVecStore:
                         pass
                 best_confidence = survivor["confidence"] or 0.0
 
-                # Sort losers by created_at asc so last-write-wins (spec Â§3.4)
+                # Sort losers by created_at asc so last-write-wins (spec §3.4)
                 # corresponds to the newest contributor.
                 for row in sorted(losers, key=lambda r: r["created_at"] or 0):
                     contents.append(row["content"])
@@ -890,7 +890,7 @@ class SqliteVecStore:
         """Resolve a merge entity key to memory rows.
 
         Tries (a) exact id match and (b) ``metadata.entity_name`` match. We
-        deliberately do not match on raw substrings â€” that would be too loose
+        deliberately do not match on raw substrings — that would be too loose
         for a destructive operation.
         """
         rows = list(

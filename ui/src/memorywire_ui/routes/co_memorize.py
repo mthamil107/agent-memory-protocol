@@ -21,7 +21,7 @@ def _templates(request: Request) -> Jinja2Templates:
 
 
 async def list_candidates(request: Request) -> Response:
-    """GET ``/co-memorize`` â€” render forget/merge candidates."""
+    """GET ``/co-memorize`` — render forget/merge candidates."""
     db_path: str = request.app.state.db_path
     agent_id: str = request.app.state.agent_id
     candidates = services.co_memorize_candidates(db_path, agent_id)
@@ -33,7 +33,7 @@ async def list_candidates(request: Request) -> Response:
 
 
 async def apply(request: Request) -> Response:
-    """POST ``/co-memorize/apply`` â€” apply every checked candidate.
+    """POST ``/co-memorize/apply`` — apply every checked candidate.
 
     The form sends one ``op`` field per selected row of the form
     ``"<op_type>:<primary_id>:<secondary_id or empty>"`` so the route can

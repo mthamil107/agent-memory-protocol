@@ -3,7 +3,7 @@
 This module exposes :class:`PgVectorStore`, a :class:`memorywire.store.MemoryStore`
 implementation backed by PostgreSQL with the ``pgvector`` extension. It is the
 production-grade analogue to :class:`memorywire.store.sqlite_vec.SqliteVecStore`:
-same conceptual schema (see :file:`docs/kickoff/ARCHITECTURE.md` Â§3), but
+same conceptual schema (see :file:`docs/kickoff/ARCHITECTURE.md` §3), but
 translated to the Postgres dialect, with the ANN index served by ``pgvector``'s
 ``vector(N)`` column type plus an ``ivfflat`` index.
 
@@ -12,7 +12,7 @@ Design notes
 * The ``asyncpg`` + ``pgvector`` packages are *optional extras* (``pip install
   memorywire[postgres]``). The imports live behind ``TYPE_CHECKING``
   and inside :meth:`PgVectorStore._get_pool` so this module loads cleanly even
-  without the extras installed â€” unit tests use ``unittest.mock.AsyncMock`` and
+  without the extras installed — unit tests use ``unittest.mock.AsyncMock`` and
   never need a running Postgres.
 * asyncpg is natively async; no thread-pool wrapping is needed, unlike
   :mod:`memorywire.store.sqlite_vec` / :mod:`memorywire.store.mem0_adapter`. Every method on
@@ -29,19 +29,19 @@ Design notes
   declared. spec-gap: documented below.
 * All SQL is parameterised; identifiers like the schema name are validated
   on construction so they cannot reach the SQL string with hostile content.
-* IDs use :func:`uuid.uuid4` hex â€” same choice and same deferral note as
+* IDs use :func:`uuid.uuid4` hex — same choice and same deferral note as
   :mod:`memorywire.store.sqlite_vec` (uuid7 once Python 3.14 is the floor).
 
 URL anatomy
 -----------
 ``PgVectorStore.from_url`` accepts three forms:
 
-* ``pgvector://<full-dsn>`` â€” everything after ``pgvector://`` is interpreted
+* ``pgvector://<full-dsn>`` — everything after ``pgvector://`` is interpreted
   as a Postgres DSN. Example: ``pgvector://user:pw@localhost:5432/amp``.
-* ``pgvector+postgres://user:pw@host:port/db`` â€” explicit
+* ``pgvector+postgres://user:pw@host:port/db`` — explicit
   ``pgvector+postgres`` scheme; the ``+postgres`` half is purely cosmetic and
   is stripped before handing the DSN to asyncpg.
-* ``pgvector://default`` â€” reads ``DATABASE_URL`` from the environment.
+* ``pgvector://default`` — reads ``DATABASE_URL`` from the environment.
 
 Spec-gap summary
 ----------------
@@ -90,7 +90,7 @@ from memorywire.store.base import Capability
 # and downstream consumers only need to import it from one place.
 from memorywire.store.sqlite_vec import PENDING_APPROVAL_DELETED_AT
 
-if TYPE_CHECKING:  # pragma: no cover â€” typing-only.
+if TYPE_CHECKING:  # pragma: no cover — typing-only.
     import asyncpg  # noqa: F401
 
 
@@ -105,7 +105,7 @@ DEFAULT_EMBEDDING_DIM: Final[int] = 384
 EmbedderFn = Callable[[str], list[float]]
 
 # Identifier-safe characters for the schema namespace. We refuse anything
-# outside this set rather than try to quote â€” the schema name appears in
+# outside this set rather than try to quote — the schema name appears in
 # raw DDL because PostgreSQL does not parameterise identifiers.
 _IDENT_RE = __import__("re").compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
@@ -148,7 +148,7 @@ class PgVectorStore:
     ----------
     dsn:
         Postgres connection string (``postgres://user:pw@host:port/db``).
-        Mutually exclusive with ``pool`` â€” supply one or the other.
+        Mutually exclusive with ``pool`` — supply one or the other.
     pool:
         An already-constructed ``asyncpg.Pool`` (or compatible
         :class:`unittest.mock.AsyncMock`). Useful for dependency injection
@@ -214,12 +214,12 @@ class PgVectorStore:
 
         Recognised forms:
 
-        * ``pgvector://<dsn>`` â€” everything after the scheme is the DSN. The
+        * ``pgvector://<dsn>`` — everything after the scheme is the DSN. The
           adapter prepends ``postgres://`` if no scheme is present in the
           tail (the ``urlparse`` round-trip strips it).
-        * ``pgvector+postgres://user:pw@host:port/db`` â€” explicit composite
+        * ``pgvector+postgres://user:pw@host:port/db`` — explicit composite
           scheme; the ``+postgres`` half is stripped to recover the DSN.
-        * ``pgvector://default`` â€” reads ``DATABASE_URL`` from the
+        * ``pgvector://default`` — reads ``DATABASE_URL`` from the
           environment. Raises :class:`ValueError` if unset.
         """
         parsed = urlparse(url)
@@ -280,7 +280,7 @@ class PgVectorStore:
         flag plus ``VECTOR``, ``RECALL_TRACKING`` (the ``last_recalled_at``
         column is updated on every recall hit), and ``GOVERNANCE`` (the
         ``PENDING_APPROVAL_DELETED_AT`` sentinel is honoured by recall). FTS
-        is deliberately absent at v0 â€” see module docstring.
+        is deliberately absent at v0 — see module docstring.
         """
         return {
             Capability.SEMANTIC,
@@ -330,7 +330,7 @@ class PgVectorStore:
         schema = self._schema
         dim = self._embedding_dim
 
-        # All DDL statements are idempotent â€” IF NOT EXISTS everywhere. The
+        # All DDL statements are idempotent — IF NOT EXISTS everywhere. The
         # schema/identifier strings are validated on construction.
         ddl: list[str] = [
             "CREATE EXTENSION IF NOT EXISTS vector",
@@ -411,7 +411,7 @@ class PgVectorStore:
             if hasattr(result, "__await__"):
                 await result
         except Exception:
-            # ``close`` is best-effort â€” never raise out of teardown.
+            # ``close`` is best-effort — never raise out of teardown.
             return
 
     # ------------------------------------------------------------------
@@ -425,7 +425,7 @@ class PgVectorStore:
         if self._lazy_embedder is not None:
             return self._lazy_embedder
 
-        # Lazy import â€” sentence-transformers is an optional dependency. The
+        # Lazy import — sentence-transformers is an optional dependency. The
         # try/except gives a more actionable error than ImportError.
         try:
             from sentence_transformers import SentenceTransformer
@@ -603,7 +603,7 @@ class PgVectorStore:
         # ``embedding <-> $N::vector`` is the L2 distance operator. Smaller is
         # better, hence the ASC order; we convert to a positive score (1 /
         # (1 + d)) on the client side so RecallHit.score is monotonic with
-        # relevance (higher = better) â€” matches the sqlite_vec adapter's
+        # relevance (higher = better) — matches the sqlite_vec adapter's
         # convention via RRF scoring.
         params.append(vec_literal)
         vec_param_idx = len(params)
@@ -631,7 +631,7 @@ class PgVectorStore:
                 hits.append(self._row_to_hit(row, score))
                 recalled_ids.append(row["id"])
 
-            # Update last_recalled_at for the rows we surfaced. Best-effort â€”
+            # Update last_recalled_at for the rows we surfaced. Best-effort —
             # never fail the recall on a tracker write.
             if recalled_ids:
                 await conn.execute(
@@ -672,7 +672,7 @@ class PgVectorStore:
         clauses.append(f"agent_id = ${len(params)}")
 
         # ``deleted_at IS NULL`` hides soft-deleted rows *and* PENDING ones
-        # (the latter use a non-NULL sentinel) â€” same shape as sqlite_vec.
+        # (the latter use a non-NULL sentinel) — same shape as sqlite_vec.
         clauses.append("deleted_at IS NULL")
 
         if req.user_id is not None:
@@ -1113,7 +1113,7 @@ class PgVectorStore:
     def _escape_json_key(key: str) -> str:
         """Escape a JSON key for embedding inside a ``metadata->>'...'`` literal.
 
-        We accept ``[A-Za-z0-9_]+`` keys only â€” anything else is replaced
+        We accept ``[A-Za-z0-9_]+`` keys only — anything else is replaced
         with ``_`` so a hostile caller cannot inject SQL. The recall path
         already passes the *value* as a parameter; this just keeps the
         keypath out of injection range.

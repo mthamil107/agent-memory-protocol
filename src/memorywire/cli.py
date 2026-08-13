@@ -1,17 +1,17 @@
-"""``memorywire`` command-line entry point â€” full Phase 5 implementation.
+"""``memorywire`` command-line entry point — full Phase 5 implementation.
 
 Three subcommands, all dispatched through the :class:`memorywire.api.Memory`
 facade so the CLI exercises the same code path SDK consumers use:
 
-* ``memorywire remember <content>`` â€” write a memory; prints ``id=<id>``.
-* ``memorywire recall <query>``     â€” read memories; prints a table or JSON.
-* ``memorywire forget``             â€” delete memories; prints ``forgotten=<n>``.
+* ``memorywire remember <content>`` — write a memory; prints ``id=<id>``.
+* ``memorywire recall <query>``     — read memories; prints a table or JSON.
+* ``memorywire forget``             — delete memories; prints ``forgotten=<n>``.
 
 Common flags:
 
-* ``--agent AGENT`` (default ``memorywire-cli``) â€” scope every operation.
+* ``--agent AGENT`` (default ``memorywire-cli``) — scope every operation.
 * ``--store URL``  (repeatable, default ``sqlite-vec://./memorywire-cli.db``).
-* ``--verbose`` / ``--quiet`` â€” log-level toggles.
+* ``--verbose`` / ``--quiet`` — log-level toggles.
 
 Exit codes:
 
@@ -52,7 +52,7 @@ def _build_parser() -> argparse.ArgumentParser:
     """Construct the top-level ``memorywire`` :class:`argparse.ArgumentParser`."""
     parser = argparse.ArgumentParser(
         prog=_PROG_NAME,
-        description=f"{_PROG_NAME} {__version__} â€” memorywire CLI",
+        description=f"{_PROG_NAME} {__version__} — memorywire CLI",
     )
     parser.add_argument(
         "-V",
@@ -259,7 +259,7 @@ def _truncate(text: str, limit: int = 80) -> str:
     flat = " ".join(text.split())
     if len(flat) <= limit:
         return flat
-    return flat[: limit - 1] + "â€¦"
+    return flat[: limit - 1] + "…"
 
 
 class _UserError(Exception):
@@ -441,7 +441,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"memorywire: {exc}", file=sys.stderr)
         return 1
     except Exception as exc:
-        # Backend / store failure â€” exit 2 per the spec contract. We keep
+        # Backend / store failure — exit 2 per the spec contract. We keep
         # the message terse; ``--verbose`` enables DEBUG logging if the
         # operator needs a stack trace.
         logger.debug("backend failure", exc_info=True)

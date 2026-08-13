@@ -5,12 +5,12 @@ The UI is a thin renderer over the same SQLite database the
 opens a separate connection (read-mostly, single-writer-via-WAL) and exposes
 typed helpers for each screen:
 
-* :func:`list_pending`           Ã¢â‚¬â€ Pending Approvals screen.
-* :func:`approve` / :func:`reject` Ã¢â‚¬â€ HITL actions on a pending row.
-* :func:`audit_query`            Ã¢â‚¬â€ Audit Log screen + the patterns clustering.
-* :func:`health_metrics`         Ã¢â‚¬â€ Memory Health dashboard.
-* :func:`co_memorize_candidates` / :func:`apply_co_memorize` Ã¢â‚¬â€ Bulk-review screen.
-* :func:`pattern_recommendations` / :func:`accept_pattern` Ã¢â‚¬â€ Approval Patterns
+* :func:`list_pending`           — Pending Approvals screen.
+* :func:`approve` / :func:`reject` — HITL actions on a pending row.
+* :func:`audit_query`            — Audit Log screen + the patterns clustering.
+* :func:`health_metrics`         — Memory Health dashboard.
+* :func:`co_memorize_candidates` / :func:`apply_co_memorize` — Bulk-review screen.
+* :func:`pattern_recommendations` / :func:`accept_pattern` — Approval Patterns
   screen, with an idempotent :func:`ensure_schema` that adds the small
   ``approval_patterns`` table the UI owns.
 
@@ -40,7 +40,7 @@ from memorywire.store.sqlite_vec import PENDING_APPROVAL_DELETED_AT
 # ---------------------------------------------------------------------------
 
 # Sentinel for memories awaiting governance approval. Re-exported from the OSS
-# adapter so the UI and the storage contract stay in lockstep Ã¢â‚¬â€ when the OSS
+# adapter so the UI and the storage contract stay in lockstep — when the OSS
 # side bumps SCHEMA_VERSION and changes the sentinel, the UI follows
 # automatically rather than silently desyncing on a hand-copied literal.
 PENDING_SENTINEL = PENDING_APPROVAL_DELETED_AT
@@ -55,7 +55,7 @@ _MERGE_OVERLAP = 0.7
 # Health dashboard staleness window.
 _STALE_DAYS = 30
 
-# Health dashboard drift heuristic Ã¢â‚¬â€ token-overlap threshold above which two
+# Health dashboard drift heuristic — token-overlap threshold above which two
 # memories of the same user_id are flagged as a contradiction pair.
 _DRIFT_OVERLAP = 0.7
 
@@ -153,7 +153,7 @@ class ApplyOpResult:
     """Per-op outcome inside an :class:`ApplyResult`.
 
     ``skipped`` is true when the row did not exist, did not belong to the
-    requesting agent, or was already soft-deleted Ã¢â‚¬â€ none of those are bugs
+    requesting agent, or was already soft-deleted — none of those are bugs
     in the operator's workflow, so we report them rather than raising.
     """
 
@@ -259,7 +259,7 @@ def _extract_keyword(content: str) -> str:
 
     Used to bucket approval decisions into clusters. We pick the longest
     word that is not a stop-word; ties go to the first occurrence. The
-    keyword extractor is deliberately tiny Ã¢â‚¬â€ pattern-recommendation quality
+    keyword extractor is deliberately tiny — pattern-recommendation quality
     is bounded by audit-log signal, not by the keyword classifier.
     """
     stop = {
@@ -300,13 +300,13 @@ def _extract_keyword(content: str) -> str:
 class NotPendingError(LookupError):
     """Raised when an approve/reject targets a row that is missing, not
     pending, or belongs to a different agent. Subclasses :class:`LookupError`
-    so existing handlers that catch ``LookupError`` continue to work Ã¢â‚¬â€ and
+    so existing handlers that catch ``LookupError`` continue to work — and
     the route layer can map either to a 404.
     """
 
 
 # ---------------------------------------------------------------------------
-# Schema management Ã¢â‚¬â€ UI-owned tables + bootstrap of the OSS schema
+# Schema management — UI-owned tables + bootstrap of the OSS schema
 # ---------------------------------------------------------------------------
 
 
@@ -317,14 +317,14 @@ def ensure_schema(db_path: str | Path) -> None:
     writes to. In production the OSS process always boots first and creates
     its schema as a side effect of constructing a :class:`SqliteVecStore`;
     in tests we lean on the seeded_db fixture for the same effect. But when
-    an operator points the UI at a brand-new file (the common dev-loop Ã¢â‚¬â€
+    an operator points the UI at a brand-new file (the common dev-loop —
     ``python -m memorywire_ui`` against an empty ``./memorywire-cli.db``), nothing has
     ever created the OSS tables and every page returns 500 from a
     ``no such table: memories`` error.
 
     Fix: instantiate a ``SqliteVecStore`` here, let its ``_init_schema``
     run, then drop it. We pass a no-op embedder so the import is cheap and
-    sentence-transformers is never touched Ã¢â‚¬â€ the embedder is only invoked
+    sentence-transformers is never touched — the embedder is only invoked
     on actual writes, which we never perform.
 
     The OSS schema bootstrap is idempotent (every CREATE uses ``IF NOT
@@ -427,7 +427,7 @@ def list_pending(db_path: str | Path, agent_id: str) -> list[PendingApproval]:
     matches the (approver-pending, operation=remember, type, keyword)
     tuple, ``auto_approved`` is set so the renderer can flag the row.
     """
-    # Import lazily Ã¢â‚¬â€ keeps the services module importable without the
+    # Import lazily — keeps the services module importable without the
     # diff helper for callers that only use parts of the API.
     from memorywire_ui.diff import diff_memories
 
@@ -489,7 +489,7 @@ def approve(
 ) -> None:
     """Approve a pending memory: flip ``deleted_at`` to NULL + audit it.
 
-    Strictly scoped to ``agent_id`` and the pending sentinel Ã¢â‚¬â€ any attempt
+    Strictly scoped to ``agent_id`` and the pending sentinel — any attempt
     to approve a row that is not pending, has been hard-deleted, or
     belongs to a different agent raises :class:`NotPendingError` (a
     :class:`LookupError` subclass) so the route layer can return 404.
@@ -742,7 +742,7 @@ def health_metrics(db_path: str | Path, agent_id: str) -> HealthMetrics:
 
         # Drift: count contradiction pairs within the same user_id. O(n^2)
         # over a per-user bucket; in practice the agent / user partitions
-        # keep n small. Documented as a v0 heuristic Ã¢â‚¬â€ Phase 7 will swap
+        # keep n small. Documented as a v0 heuristic — Phase 7 will swap
         # in cosine distance against the real embedder.
         by_user: dict[str, list[sqlite3.Row]] = {}
         for r in live_rows:
@@ -787,9 +787,9 @@ def co_memorize_candidates(
 
     Heuristic (documented):
 
-    * Forget Ã¢â‚¬â€ ``last_recalled_at IS NULL`` AND ``created_at < now - 90d``
+    * Forget — ``last_recalled_at IS NULL`` AND ``created_at < now - 90d``
       AND ``confidence < 0.5``.
-    * Merge Ã¢â‚¬â€ pairs with the same ``user_id`` and token-overlap > 0.7.
+    * Merge — pairs with the same ``user_id`` and token-overlap > 0.7.
 
     Each candidate carries a deterministic, human-readable reasoning string.
     Capped at ``limit`` total rows (forget first, then merge).
@@ -830,7 +830,7 @@ def co_memorize_candidates(
                 )
             )
 
-        # Merge pairs Ã¢â‚¬â€ bucketed by user_id, deterministic ordering.
+        # Merge pairs — bucketed by user_id, deterministic ordering.
         live = conn.execute(
             "SELECT id, user_id, content FROM memories "
             "WHERE agent_id = ? AND deleted_at IS NULL AND user_id IS NOT NULL "
@@ -850,9 +850,9 @@ def co_memorize_candidates(
                                 op_type="merge",
                                 primary_id=a["id"],
                                 secondary_id=b["id"],
-                                content=f"{a['content']}  Ã¢â€ â€  {b['content']}",
+                                content=f"{a['content']}  ↔  {b['content']}",
                                 reasoning=(
-                                    f"same user, token-overlap {overlap:.0%} Ã¢â‚¬â€ merge candidates"
+                                    f"same user, token-overlap {overlap:.0%} — merge candidates"
                                 ),
                             )
                         )
@@ -870,14 +870,14 @@ def apply_co_memorize(
 ) -> ApplyResult:
     """Apply a list of bulk-review operations, strictly scoped to ``agent_id``.
 
-    * ``forget`` Ã¢â‚¬â€ soft-delete the primary and audit it.
-    * ``merge``  Ã¢â‚¬â€ soft-delete the secondary; keep the primary as canonical.
+    * ``forget`` — soft-delete the primary and audit it.
+    * ``merge``  — soft-delete the secondary; keep the primary as canonical.
 
     Every UPDATE includes ``AND agent_id = ?`` so a malicious operator
     cannot pivot from their own UI session to another agent's rows by
     guessing memory ids. If a row is missing, not live, or belongs to a
     different agent, the op is recorded in ``ApplyResult.results[i]``
-    with ``skipped=True`` and a human-readable reason Ã¢â‚¬â€ we do *not* raise
+    with ``skipped=True`` and a human-readable reason — we do *not* raise
     the whole batch, since legitimate races (the row was forgotten by
     another process between page render and apply) look identical to the
     cross-agent case at the SQL layer.
@@ -1076,7 +1076,7 @@ def pattern_recommendations(
     try:
         # Pull approvals (audit_log rows with an approver) joined to the
         # underlying memory so we know the type + content. We tolerate
-        # joins that miss (hard-deleted memories) Ã¢â‚¬â€ those rows are simply
+        # joins that miss (hard-deleted memories) — those rows are simply
         # skipped.
         rows = conn.execute(
             """
@@ -1163,7 +1163,7 @@ def accept_pattern(
 
     Returns ``True`` if a new row was inserted, ``False`` if the pattern
     was already accepted or could not be matched against the current
-    recommendation set. The match is intentionally tight Ã¢â‚¬â€ we never let
+    recommendation set. The match is intentionally tight — we never let
     a caller fabricate a pattern_key that isn't actually backed by audit
     signal.
     """

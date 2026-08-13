@@ -51,7 +51,7 @@ def test_fake_embedder_dim_matches_sqlite_vec_default() -> None:
         f"seed-on-boot fake embedder produced {len(vec)}-d vector; "
         f"SqliteVecStore default is {DEFAULT_EMBEDDING_DIM}-d"
     )
-    # Determinism check â€” same input â†’ same output.
+    # Determinism check — same input → same output.
     again = seed_mod._fake_embedder("hello world")
     assert vec == again
     # Values bounded to [0, 1] (byte / 255.0).
