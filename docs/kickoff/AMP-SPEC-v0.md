@@ -418,6 +418,6 @@ Memory research informing the design:
 - LoCoMo benchmark
 - BEAM benchmark
 - "Remember Me, Refine Me" â€” procedural memory
-- "Governed Memory" arXiv 2603.17787 â€” Co-memorize HITL
+- "Governed Memory" arXiv 2603.17787 â€” automated agent-memory governance (human-gated contrast)
 - Mem0 architecture writeup
 - Letta (MemGPT) hierarchical memory paper
