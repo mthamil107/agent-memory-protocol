@@ -11,25 +11,25 @@ Design notes
 * The ``letta-client`` package is an *optional extra* (``pip install
   memorywire[letta]``). The import lives behind ``TYPE_CHECKING``
   and inside :meth:`LettaStore._get_client` so this module loads cleanly
-  even without the SDK installed â€” unit tests use ``unittest.mock`` and
+  even without the SDK installed — unit tests use ``unittest.mock`` and
   never need the real SDK.
 * The Letta client (``letta_client.Letta``) is **synchronous**. Every method
   on this adapter awaits ``anyio.to_thread.run_sync`` so the memorywire async
   surface stays honest.
 * Letta's archival memory is per-agent: every passage is scoped to a Letta
-  ``agent_id``. memorywire's own ``agent_id`` is a different namespace â€” typically
+  ``agent_id``. memorywire's own ``agent_id`` is a different namespace — typically
   a logical identifier for the calling application's agent. We require the
   caller to supply a Letta ``agent_id`` at construction time (either via
   the ``agent_id`` kwarg or in the URL).
 * Letta's ``agents.passages.create`` accepts ``text``, ``tags``, and
-  ``created_at`` â€” and crucially, **no free-form metadata field**. memorywire
+  ``created_at`` — and crucially, **no free-form metadata field**. memorywire
   fields that don't map onto those three (``confidence``, ``source``,
   ``expires_at``, caller metadata) are encoded as structured ``amp_*``
   tags (e.g. ``amp_type:semantic``, ``amp_conf:0.9``) so they survive the
   round trip. The recall path parses these tags back out symmetrically.
   See ``spec-gap`` comments throughout.
 * Letta's archival API is delete-only (no soft-delete primitive). When
-  ``hard_delete=False`` is requested we still perform a hard delete â€”
+  ``hard_delete=False`` is requested we still perform a hard delete —
   same convention as :mod:`memorywire.store.mem0_adapter`. The audit log (Phase
   6) is the deviation record.
 * No native merge primitive in Letta either; the adapter emulates merge
@@ -80,7 +80,7 @@ from memorywire.models import (
 )
 from memorywire.store.base import Capability
 
-if TYPE_CHECKING:  # pragma: no cover â€” typing-only.
+if TYPE_CHECKING:  # pragma: no cover — typing-only.
     # The real client class is only imported for static analysis so the
     # module body remains import-safe without the ``letta`` extra installed.
     from letta_client import Letta as _LettaClient  # noqa: F401
@@ -106,7 +106,7 @@ _TAG_PREFIX_KV = "amp_kv:"
 
 
 def _now_ms() -> int:
-    """Return Unix epoch milliseconds â€” the memorywire wire timestamp format."""
+    """Return Unix epoch milliseconds — the memorywire wire timestamp format."""
     return int(time.time() * 1000)
 
 
@@ -121,7 +121,7 @@ def _datetime_to_epoch_ms(value: Any) -> int | None:
     if value is None:
         return None
     if isinstance(value, datetime):
-        # Treat naive datetimes as UTC â€” Letta server emits UTC.
+        # Treat naive datetimes as UTC — Letta server emits UTC.
         if value.tzinfo is None:
             value = value.replace(tzinfo=UTC)
         return int(value.timestamp() * 1000)
@@ -185,7 +185,7 @@ def _tags_to_amp_overlay(tags: list[str] | None) -> dict[str, Any]:
                 if k:
                     user_metadata[k] = v
             continue
-        # Unrecognised tag â€” preserve in metadata so callers can read it
+        # Unrecognised tag — preserve in metadata so callers can read it
         # back, but namespaced under "tags" to avoid collisions.
         user_metadata.setdefault("_letta_tags", []).append(tag)
     if user_metadata:
@@ -207,7 +207,7 @@ def _amp_overlay_to_tags(
     Letta does not surface a free-form metadata blob on its archival API
     (only ``tags: list[str]``). Every memorywire-specific field is therefore
     encoded as a ``key:value`` tag. Caller-supplied metadata is flattened
-    via ``amp_kv:<key>=<value>`` entries â€” non-string values are coerced
+    via ``amp_kv:<key>=<value>`` entries — non-string values are coerced
     via ``str()``. spec-gap: structured (nested) metadata is *lossy* on
     the Letta backend; documented in the module docstring and recall
     rebuilds the values as strings.
@@ -237,7 +237,7 @@ def _passage_to_dict(passage: Any) -> dict[str, Any]:
 
     Tests inject plain dicts; the real SDK hands back pydantic models. We
     accept both by trying ``model_dump`` first and falling back to attr
-    access. Returns an empty dict when neither shape works â€” the caller
+    access. Returns an empty dict when neither shape works — the caller
     is expected to defensively skip such rows.
     """
     if passage is None:
@@ -267,7 +267,7 @@ class LettaStore:
     client:
         An already-constructed ``letta_client.Letta`` (or compatible mock)
         instance. When ``None``, the adapter lazily constructs a real
-        client on first use using ``base_url`` / ``token`` â€” lazy because
+        client on first use using ``base_url`` / ``token`` — lazy because
         the real SDK opens an HTTP session that we don't want at import
         time or during unit testing.
     agent_id:
@@ -283,7 +283,7 @@ class LettaStore:
 
     Notes
     -----
-    The class is **not** declared as ``class LettaStore(MemoryStore):`` â€”
+    The class is **not** declared as ``class LettaStore(MemoryStore):`` —
     :class:`memorywire.store.MemoryStore` is a ``@runtime_checkable`` Protocol;
     structural typing via ``isinstance`` works without inheritance
     (verified in ``tests/unit/store/test_letta_adapter.py``).
@@ -335,7 +335,7 @@ class LettaStore:
                 f"LettaStore.from_url expects a 'letta://' scheme; got {parsed.scheme!r}"
             )
 
-        # Parse the host slot â€” "default" is the env-driven alias; anything
+        # Parse the host slot — "default" is the env-driven alias; anything
         # else is treated as a server host. The port (if present) is folded
         # back into the base_url.
         host = parsed.hostname
@@ -402,10 +402,10 @@ class LettaStore:
     def capabilities(self) -> set[str]:
         """Capabilities Letta supports under memorywire semantics.
 
-        * ``semantic`` / ``episodic`` â€” Letta archival memory stores any
+        * ``semantic`` / ``episodic`` — Letta archival memory stores any
           string passage; memorywire type tags are encoded in the passage tag
           list and round-tripped via :func:`_amp_overlay_to_tags`.
-        * ``vector`` â€” Letta indexes every passage with an embedding and
+        * ``vector`` — Letta indexes every passage with an embedding and
           serves ANN search via ``agents.passages.search``.
 
         Letta does **not** offer a procedural-FSM contract under memorywire
@@ -437,7 +437,7 @@ class LettaStore:
         calling Letta. Higher-layer governance is expected to replay the
         request to the adapter on approval.
         """
-        # Governance short-circuit â€” never write to the backend when an
+        # Governance short-circuit — never write to the backend when an
         # approval is pending; mirror the mem0 adapter's behaviour.
         if req.approval_required:
             return RememberResponse(
@@ -505,7 +505,7 @@ class LettaStore:
         Post-filters in Python on ``req.types`` (against the ``amp_type``
         tag) and ``req.fresher_than_days`` (against the passage's
         ``created_at``). Letta's search returns a list of
-        ``{passage, score, metadata}`` objects â€” the inner ``passage``
+        ``{passage, score, metadata}`` objects — the inner ``passage``
         carries the original text and tags.
 
         spec-gap: ``fusion_used`` is reported as ``"rrf"`` (the memorywire
@@ -559,7 +559,7 @@ class LettaStore:
 
             passage_data = row.get("passage")
             # Some search shapes return a flat dict with text/tags
-            # directly â€” accept that too via the row fallback.
+            # directly — accept that too via the row fallback.
             passage = row if passage_data is None else _passage_to_dict(passage_data)
 
             tags = passage.get("tags") if isinstance(passage, dict) else None
@@ -604,7 +604,7 @@ class LettaStore:
 
             # Pull metadata from the overlay; merge in any inline
             # passage.metadata that Letta itself stamps. Keep this best
-            # effort â€” Letta's metadata field is currently always empty,
+            # effort — Letta's metadata field is currently always empty,
             # but its presence in the schema means it MAY appear later.
             metadata: dict[str, Any] = {}
             overlay_meta = overlay.get("metadata")
@@ -647,8 +647,8 @@ class LettaStore:
         spec-gap: Letta only supports **hard delete**. When
         ``req.hard_delete`` is False (the memorywire default), this adapter
         still performs a hard delete and surfaces the request's
-        ``hard_delete`` value verbatim â€” same convention as the mem0
-        adapter. Per spec Â§3.3 a request with neither ``ids`` nor
+        ``hard_delete`` value verbatim — same convention as the mem0
+        adapter. Per spec §3.3 a request with neither ``ids`` nor
         ``filter`` is rejected as a no-scope mass-delete.
         """
         if not req.ids and not req.filter:
@@ -658,7 +658,7 @@ class LettaStore:
         client = self._get_client()
         forgotten: list[str] = []
 
-        # Path A â€” explicit ids.
+        # Path A — explicit ids.
         if req.ids:
             for mid in req.ids:
 
@@ -669,11 +669,11 @@ class LettaStore:
                     await anyio.to_thread.run_sync(_do_delete)
                     forgotten.append(mid)
                 except Exception:
-                    # Treat per-id errors the same as mem0 â€” skip and
+                    # Treat per-id errors the same as mem0 — skip and
                     # continue. The audit log (Phase 6) tracks outcomes.
                     continue
 
-        # Path B â€” filter-based delete. Letta has no server-side filter
+        # Path B — filter-based delete. Letta has no server-side filter
         # primitive beyond agent_id, so resolve client-side via list().
         if req.filter:
 
@@ -864,7 +864,7 @@ class LettaStore:
             )
             overlays.append(overlay)
 
-        # max(confidence) wins on merge_content per spec Â§3.4.
+        # max(confidence) wins on merge_content per spec §3.4.
         max_conf: float | None = None
         for overlay in overlays:
             c = overlay.get("confidence")
@@ -898,7 +898,7 @@ class LettaStore:
             )
             return content, tags
 
-        # MERGE_CONTENT â€” join content with " | " and pick the latest
+        # MERGE_CONTENT — join content with " | " and pick the latest
         # non-None type from the duplicates as the merged type.
         pieces: list[str] = []
         for rec in ordered:
@@ -931,16 +931,16 @@ class LettaStore:
         """Apply an expiration policy to a subset of passages.
 
         Letta does not track per-passage last-recalled-at, so a policy
-        carrying ``no_recall_in_days`` is rejected (spec Â§3.5: "Backends
+        carrying ``no_recall_in_days`` is rejected (spec §3.5: "Backends
         that do not track last-recalled-at MUST return an error").
 
         Actions:
 
-        * ``forget`` â€” ``agents.passages.delete`` per match.
-        * ``archive`` â€” re-create the passage with the ``amp_archived``
+        * ``forget`` — ``agents.passages.delete`` per match.
+        * ``archive`` — re-create the passage with the ``amp_archived``
           tag set, then delete the original. (Letta has no in-place
           tag-update primitive.) spec-gap.
-        * ``demote`` â€” re-create with ``confidence * 0.25`` baked into
+        * ``demote`` — re-create with ``confidence * 0.25`` baked into
           the tag list, then delete the original. spec-gap: same
           "no in-place update" caveat.
         """
@@ -985,7 +985,7 @@ class LettaStore:
 
             if cutoff_ms is not None:
                 created_at_ms = _datetime_to_epoch_ms(record.get("created_at"))
-                # Policies are ANDed per spec Â§3.5; skip rows without a
+                # Policies are ANDed per spec §3.5; skip rows without a
                 # timestamp when the policy requires age.
                 if created_at_ms is None or created_at_ms >= cutoff_ms:
                     continue
@@ -1019,7 +1019,7 @@ class LettaStore:
                 # spec-gap: Letta has no in-place update for passages, so
                 # archive = re-create with the archived flag set then
                 # delete the original. The passage id therefore changes
-                # under archive â€” callers tracking ids over an archive
+                # under archive — callers tracking ids over an archive
                 # cycle must re-resolve. Documented in module docstring.
                 new_tags = _amp_overlay_to_tags(
                     type=mtype,

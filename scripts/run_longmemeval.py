@@ -1,17 +1,17 @@
-"""LongMemEval harness for memorywire â€” paper Â§5 numbers source.
+"""LongMemEval harness for memorywire — paper §5 numbers source.
 
-This script runs memorywire against LongMemEval (Wu et al., 2024 â€”
+This script runs memorywire against LongMemEval (Wu et al., 2024 —
 `github.com/xiaowu0162/LongMemEval`) and produces the
-mean Â± 95% paired-bootstrap CI with Holm-Bonferroni-corrected p-values
-for inclusion in paper Â§5.
+mean ± 95% paired-bootstrap CI with Holm-Bonferroni-corrected p-values
+for inclusion in paper §5.
 
 Per-question isolation invariant
 --------------------------------
 For each (seed, qid) pair we construct a *fresh* :class:`memorywire.api.Memory`
 instance with a unique ``agent_id`` of the form ``f"lme-{condition}-{seed}-{qid}"``.
 This guarantees that question N's recall never sees question N-1's
-ingested turns â€” without this invariant the harness silently cross-
-contaminates and the paper Â§5 numbers measure the wrong thing. The
+ingested turns — without this invariant the harness silently cross-
+contaminates and the paper §5 numbers measure the wrong thing. The
 underlying sqlite-vec store is the same file per condition, but every
 row carries the question-scoped ``agent_id`` so the adapter's row-level
 filter keeps results disjoint. ``Memory.close()`` is invoked after each
@@ -33,7 +33,7 @@ Five task types, each measuring a different facet of long-term memory:
 
 The benchmark ships with a GPT-4 grader prompt; we use that grader by
 default (configurable via ``--grader-model``). BEAM is covered by the
-same machinery if/when its dataset becomes available â€” drop a manifest
+same machinery if/when its dataset becomes available — drop a manifest
 into ``~/.cache/amp/beam/`` and add ``--dataset beam``.
 
 What this script does
@@ -51,7 +51,7 @@ For each (task_type, seed) pair:
 4. Construct a candidate answer. v0 uses a simple template
    ("Based on the memories: <context>; the answer is: <top hit
    content>"); the eval is about *retrieval*, not generation, so this
-   is honest â€” we're measuring whether the right facts surfaced.
+   is honest — we're measuring whether the right facts surfaced.
    ``--grader-model`` then judges the candidate vs the gold answer.
 5. Score per LongMemEval rubric (0..1 per question). Aggregate per
    task_type and per seed.
@@ -69,7 +69,7 @@ Pipeline gates
 * ``--dry-run``: runs the memorywire pipeline (ingest + recall) but skips the
   grader entirely; useful to verify wiring without an API key.
 * ``OPENAI_API_KEY`` is read at runtime; missing key + no ``--dry-run``
-  â†’ fail fast with a clear message.
+  → fail fast with a clear message.
 * Cost estimate is printed before the run kicks off so the user can
   Ctrl-C if the bill looks too high.
 
@@ -199,7 +199,7 @@ def _load_longmemeval_from_disk(root: Path) -> list[LMEQuestion]:
 
     The upstream repo ships ``data/longmemeval_*.json`` files (one per
     difficulty tier). We accept any subset present, concatenate them,
-    and assume a ``task_type`` field on each row. Missing fields â†’ the
+    and assume a ``task_type`` field on each row. Missing fields → the
     row is skipped with a stderr warning so a half-staged dataset
     doesn't silently truncate the run.
     """
@@ -353,7 +353,7 @@ class _NoOpGrader:
 
     Lets ``--dry-run`` produce a meaningful (if approximate) score
     without burning a paid API call. Substring match is crude on purpose
-    â€” the real grader is the only honest path; this just verifies the
+    — the real grader is the only honest path; this just verifies the
     pipeline wiring.
     """
 
@@ -464,7 +464,7 @@ async def _run_condition(
                         rubric=q.rubric,
                     )
                 else:
-                    # Real grader path â€” keep cache_hit metadata when available.
+                    # Real grader path — keep cache_hit metadata when available.
                     if isinstance(grader, LLMGrader):
                         meta = grader.grade_with_meta(
                             question=q.question,
@@ -566,7 +566,7 @@ def _format_text(result: LongMemEvalResult) -> str:
         lines.append("")
         lines.append("Pairwise comparisons (paired bootstrap, Holm-Bonferroni corrected)")
         lines.append("-" * 76)
-        lines.append(f"{'A vs B':<48}{'Î”mean':>10}{'95% CI':>22}{'p_corr':>10}{'reject':>8}")
+        lines.append(f"{'A vs B':<48}{'Δmean':>10}{'95% CI':>22}{'p_corr':>10}{'reject':>8}")
         for cmp in result.pairwise_comparisons:
             ci = f"[{cmp['ci_low']:+.3f}, {cmp['ci_high']:+.3f}]"
             label = f"{cmp['a']} vs {cmp['b']}"
@@ -605,7 +605,7 @@ def _try_plot(result: LongMemEvalResult, plot_path: Path) -> str | None:
         ax.set_xticklabels(task_types, rotation=20, ha="right")
         ax.set_ylim(0, 1.05)
         ax.set_ylabel("grader score (mean)")
-        ax.set_title("memorywire LongMemEval â€” per-task means")
+        ax.set_title("memorywire LongMemEval — per-task means")
         ax.grid(True, axis="y", alpha=0.3)
         ax.legend(loc="best", fontsize=8)
         fig.tight_layout()
@@ -708,7 +708,7 @@ async def _run(args: argparse.Namespace) -> LongMemEvalResult:
     # each subsequent URL as an memorywire variant. To compare memorywire-with-all-
     # stores-fused vs single-store baseline, the user should pass the
     # full comma-separated URL list as one condition; but that's a v0.2
-    # ergonomics knob â€” for the paper we expose one URL = one condition.
+    # ergonomics knob — for the paper we expose one URL = one condition.
     conditions = [(url, url) for url in config.stores]
 
     # ---- Grader ---------------------------------------------------------
@@ -870,7 +870,7 @@ async def _run(args: argparse.Namespace) -> LongMemEvalResult:
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="run_longmemeval",
-        description="memorywire LongMemEval harness (paper Â§5 numbers source).",
+        description="memorywire LongMemEval harness (paper §5 numbers source).",
     )
     p.add_argument(
         "--stores",

@@ -1,4 +1,4 @@
-"""Agent Memory Protocol (memorywire) â€” vendor-neutral protocol and reference implementation."""
+"""Agent Memory Protocol (memorywire) — vendor-neutral protocol and reference implementation."""
 
 from __future__ import annotations
 

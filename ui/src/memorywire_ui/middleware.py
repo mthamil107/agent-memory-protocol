@@ -2,16 +2,16 @@
 
 Two middlewares ship from this module, both opt-in via :func:`amp_ui.app.create_app`:
 
-* :class:`BearerAuthMiddleware` Ã¢â‚¬â€ gate every request behind a static
+* :class:`BearerAuthMiddleware` — gate every request behind a static
   bearer token, with a cookie escape-hatch for browser flows. No-op
   when ``token`` is ``None`` (local-dev default).
-* :class:`CSRFMiddleware` Ã¢â‚¬â€ protects state-changing requests (POST /
+* :class:`CSRFMiddleware` — protects state-changing requests (POST /
   PUT / DELETE / PATCH) with the standard double-submit-cookie pattern.
   GETs mint a signed token cookie; mutating requests must echo it back
   via an ``X-CSRF-Token`` header (HTMX's hx-headers attribute sends it
   automatically once the body tag is wired up in ``base.html``).
 
-Both middlewares are deliberately small Ã¢â‚¬â€ itsdangerous-style cookie
+Both middlewares are deliberately small — itsdangerous-style cookie
 sessions are overkill for v0 here, where the threat model is a single
 operator on localhost or behind a reverse proxy.
 
@@ -23,7 +23,7 @@ Security notes
   and a stolen bearer is a separate compromise.
 * Constant-time comparison via :func:`hmac.compare_digest` guards
   against timing oracles on both the bearer and the CSRF token.
-* The CSRF secret is unstructured bytes Ã¢â‚¬â€ we sign ``token || timestamp``
+* The CSRF secret is unstructured bytes — we sign ``token || timestamp``
   with HMAC-SHA256 so a token leaked via a referer header cannot be
   trivially replayed past its expiry. For v0 the expiry is 24h.
 """
@@ -78,7 +78,7 @@ class BearerAuthMiddleware:
     the ``memorywire_ui_session=<token>`` cookie (for browser flows). On any
     mismatch returns ``401`` with a ``WWW-Authenticate: Bearer`` header.
 
-    No-op when ``token`` is ``None`` Ã¢â‚¬â€ that preserves the current
+    No-op when ``token`` is ``None`` — that preserves the current
     behaviour for unauthenticated local development.
     """
 
@@ -131,7 +131,7 @@ class CSRFMiddleware:
       secret.
 
     Bypassed entirely for requests carrying an ``Authorization: Bearer``
-    header Ã¢â‚¬â€ server-to-server clients use the bearer for both authn and
+    header — server-to-server clients use the bearer for both authn and
     integrity, and asking them to maintain a cookie jar is gratuitous.
     """
 

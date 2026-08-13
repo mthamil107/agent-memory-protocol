@@ -30,7 +30,7 @@ from memorywire.store import Capability, MemoryStore
 from memorywire.store.sqlite_vec import DEFAULT_EMBEDDING_DIM, SqliteVecStore
 
 # ---------------------------------------------------------------------------
-# Fake embedder â€” deterministic, sha256-derived, 384-dim.
+# Fake embedder — deterministic, sha256-derived, 384-dim.
 # ---------------------------------------------------------------------------
 
 
@@ -261,7 +261,7 @@ async def test_forget_by_filter_removes_matching(store: SqliteVecStore) -> None:
 
 
 async def test_forget_requires_ids_or_filter(store: SqliteVecStore) -> None:
-    """No-scope mass delete must raise per spec Â§3.3 Editor's note."""
+    """No-scope mass delete must raise per spec §3.3 Editor's note."""
     with pytest.raises(ValueError, match="ids` or `filter"):
         await store.forget(ForgetRequest(agent_id="agent-x"))
 
@@ -451,7 +451,7 @@ async def test_expire_archive_sets_metadata_and_soft_deletes(store: SqliteVecSto
 
 
 async def test_expire_rejects_missing_policy(store: SqliteVecStore) -> None:
-    """``expire(policy=None)`` would mass-delete the agent's rows â€” must raise.
+    """``expire(policy=None)`` would mass-delete the agent's rows — must raise.
 
     Regression: before this guard, the WHERE clause collapsed to
     ``agent_id = ? AND deleted_at IS NULL`` and (with the default

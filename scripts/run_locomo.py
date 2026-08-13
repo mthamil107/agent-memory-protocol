@@ -1,6 +1,6 @@
-"""LoCoMo harness for memorywire â€” paper Â§5 long-conversation numbers.
+"""LoCoMo harness for memorywire — paper §5 long-conversation numbers.
 
-This script runs memorywire against LoCoMo (Maharana et al., 2024 â€”
+This script runs memorywire against LoCoMo (Maharana et al., 2024 —
 `github.com/snap-research/locomo`). LoCoMo measures long-term
 conversational memory: pairs of conversational episodes spanning many
 sessions, with a GPT-4 grader judging answer quality and a BLEU
@@ -29,7 +29,7 @@ Shape vs LongMemEval
 
 BEAM
 ----
-BEAM (Lin et al., 2024) lands here too once its dataset is public â€”
+BEAM (Lin et al., 2024) lands here too once its dataset is public —
 the loader + grader plumbing is dataset-agnostic. Drop the manifest
 into ``~/.cache/amp/beam/`` and reuse this harness with
 ``--dataset beam``.
@@ -240,7 +240,7 @@ def _bleu4(candidate: str, reference: str) -> float:
     """Sentence-level BLEU-4 with add-one (Lin-Chin) smoothing.
 
     Returns a float in [0, 1]. Used as a cheap reference-anchored
-    metric on LoCoMo â€” the grader is the headline number; BLEU is the
+    metric on LoCoMo — the grader is the headline number; BLEU is the
     "is the candidate even close to the reference text?" sanity check.
     """
     cand_tokens = candidate.lower().split()
@@ -260,7 +260,7 @@ def _bleu4(candidate: str, reference: str) -> float:
         for ngram, ccount in cand_counts.items():
             clipped += min(ccount, ref_counts.get(ngram, 0))
         total = sum(cand_counts.values())
-        # add-one smoothing â€” sufficient for short LoCoMo answers
+        # add-one smoothing — sufficient for short LoCoMo answers
         p = (clipped + 1) / (total + 1)
         log_precisions.append(math.log(max(p, 1e-9)))
 
@@ -539,7 +539,7 @@ def _format_text(result: LoCoMoResult) -> str:
             ci = f"[{cmp['ci_low']:+.3f}, {cmp['ci_high']:+.3f}]"
             label = f"{cmp['a']} vs {cmp['b']} ({cmp['metric']})"
             lines.append(
-                f"  {label:<60} Î”={cmp['mean_diff']:+.3f}  CI={ci}  "
+                f"  {label:<60} Δ={cmp['mean_diff']:+.3f}  CI={ci}  "
                 f"p={cmp['p_value_raw']:.3g}  reject={cmp['reject_null']}"
             )
     return "\n".join(lines)
@@ -570,7 +570,7 @@ def _try_plot(result: LoCoMoResult, plot_path: Path) -> str | None:
         ax.set_xticklabels(conditions, rotation=20, ha="right")
         ax.set_ylim(0, 1.05)
         ax.set_ylabel("score (mean)")
-        ax.set_title("memorywire LoCoMo â€” overall means")
+        ax.set_title("memorywire LoCoMo — overall means")
         ax.grid(True, axis="y", alpha=0.3)
         ax.legend(loc="best")
         fig.tight_layout()
@@ -624,7 +624,7 @@ async def _run(args: argparse.Namespace) -> LoCoMoResult:
 
     if config.dry_run:
         # n_queries here means "total questions across episodes". We
-        # synthesise ~1 question per episode, so n_episodes â‰ˆ n_queries.
+        # synthesise ~1 question per episode, so n_episodes ≈ n_queries.
         episodes = _load_synthetic_locomo(max(1, args.n_queries or 3))
         dataset_label = "locomo-synthetic-dry-run"
     else:
@@ -791,7 +791,7 @@ async def _run(args: argparse.Namespace) -> LoCoMoResult:
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
         prog="run_locomo",
-        description="memorywire LoCoMo harness (paper Â§5 long-conversation numbers).",
+        description="memorywire LoCoMo harness (paper §5 long-conversation numbers).",
     )
     p.add_argument(
         "--stores",

@@ -2,10 +2,10 @@
 
 Runnable demo of the Phase-5 :mod:`memorywire.procedural` backend:
 
-1. Build the canonical ``book-flight`` procedure from spec Â§7.
+1. Build the canonical ``book-flight`` procedure from spec §7.
 2. Statically validate the procedure.
 3. Drive it through the happy path:
-   ``found_options â†’ picked â†’ paid â†’ receipt``.
+   ``found_options → picked → paid → receipt``.
 4. Demonstrate the ``"source": "*"`` wildcard idiom by ``cancel`` from a
    mid-flow state.
 5. Roundtrip through ``to_dict()`` / JSON / ``from_dict()`` and assert
@@ -24,7 +24,7 @@ from memorywire.procedural import Procedure, ProcedureRunner
 
 
 def build_book_flight() -> Procedure:
-    """Construct the spec Â§7 ``book-flight`` procedure."""
+    """Construct the spec §7 ``book-flight`` procedure."""
     return Procedure(
         name="book-flight",
         states=[

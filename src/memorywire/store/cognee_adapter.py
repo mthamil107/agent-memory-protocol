@@ -12,12 +12,12 @@ Design notes
 * The ``cognee`` package is an *optional extra* (``pip install
   memorywire[cognee]``). The import lives behind
   ``TYPE_CHECKING`` and inside :meth:`CogneeStore._get_module` so this
-  module loads cleanly even without cognee installed â€” unit tests mock
+  module loads cleanly even without cognee installed — unit tests mock
   the module via :mod:`unittest.mock` and never need the real SDK.
 * Cognee's public surface (``cognee.add``, ``cognee.search``,
   ``cognee.prune.prune_data``, ``cognee.forget``) is **natively
   asynchronous**. Unlike the Letta and mem0 adapters, this adapter does
-  not need ``anyio.to_thread.run_sync`` â€” every Cognee call is awaited
+  not need ``anyio.to_thread.run_sync`` — every Cognee call is awaited
   directly.
 * Cognee scopes data by *dataset name* (a string, defaulting to
   ``"main_dataset"`` on the SDK). The adapter pins a single dataset per
@@ -33,7 +33,7 @@ Design notes
   prepended to the content so they survive the round trip. The header
   uses a JSON line so it parses unambiguously on recall. See
   ``spec-gap`` comments.
-* Cognee's ``add`` is not a per-record write â€” it returns ``None`` and
+* Cognee's ``add`` is not a per-record write — it returns ``None`` and
   ingests the text into a pipeline. The adapter synthesises a content-
   hash id so memorywire's :class:`RememberResponse` shape stays valid. v0.2
   should let callers reason about pipeline-run ids returned from
@@ -44,7 +44,7 @@ Design notes
   When ``req.filter`` would otherwise force a dataset-wide prune the
   adapter raises :class:`ValueError`; the audit log records the
   deviation. spec-gap.
-* No native merge primitive â€” emulated via add + delete pattern that
+* No native merge primitive — emulated via add + delete pattern that
   mirrors the Letta adapter.
 * Cognee does not track per-record last-recalled-at; :meth:`expire`
   rejects ``no_recall_in_days`` like the other adapters.
@@ -56,7 +56,7 @@ URL anatomy
 * ``cognee://default`` is a reserved alias for the memorywire default
   dataset name (``"memorywire"``).
 * Any other host slot is treated as the dataset name, e.g.
-  ``cognee://team-knowledge`` â†’ ``dataset="team-knowledge"``.
+  ``cognee://team-knowledge`` → ``dataset="team-knowledge"``.
 * Query parameters are accepted but ignored at v0; richer per-URL
   config is deferred to v0.2.
 """
@@ -91,7 +91,7 @@ from memorywire.models import (
 )
 from memorywire.store.base import Capability
 
-if TYPE_CHECKING:  # pragma: no cover â€” typing-only.
+if TYPE_CHECKING:  # pragma: no cover — typing-only.
     # The real module is only imported for static analysis so the module
     # body remains import-safe without the ``cognee`` extra installed.
     import cognee as _cognee  # noqa: F401
@@ -118,7 +118,7 @@ _AMP_HEADER_END = "</AMP_META>"
 
 
 def _now_ms() -> int:
-    """Return Unix epoch milliseconds â€” the memorywire wire timestamp format."""
+    """Return Unix epoch milliseconds — the memorywire wire timestamp format."""
     return int(time.time() * 1000)
 
 
@@ -205,8 +205,8 @@ def _synth_amp_id(agent_id: str, content: str, *, salt: int | None = None) -> st
     Cognee's ``add`` does not surface a per-record id (the pipeline runs
     asynchronously across multiple chunks), so the adapter mints its own
     id at write time. Using sha1 over (agent_id, content, salt) keeps the
-    id stable across retries of an identical write â€” useful for
-    idempotency â€” and the salt fallback prevents collisions when callers
+    id stable across retries of an identical write — useful for
+    idempotency — and the salt fallback prevents collisions when callers
     intentionally re-remember the same fact.
     """
     salt_part = f":{salt}" if salt is not None else ""
@@ -219,14 +219,14 @@ def _entry_to_overlay_and_text(entry: Any) -> tuple[dict[str, Any], str, float |
     """Coerce a Cognee recall/search entry into ``(overlay, text, score)``.
 
     Cognee's recall path returns a discriminated union of response
-    entries (:class:`ResponseQAEntry`, :class:`ResponseGraphEntry`, â€¦).
+    entries (:class:`ResponseQAEntry`, :class:`ResponseGraphEntry`, …).
     Tests inject plain dicts. This helper normalises both shapes onto
     the memorywire overlay produced by :func:`_unwrap_content`.
     """
     if entry is None:
         return {}, "", None
 
-    # Pydantic model â€” prefer model_dump.
+    # Pydantic model — prefer model_dump.
     if hasattr(entry, "model_dump") and callable(entry.model_dump):
         try:
             data = entry.model_dump()
@@ -284,7 +284,7 @@ class CogneeStore:
     ----------
     client:
         An object that exposes the cognee module's public surface
-        (``add``, ``search``, ``forget``, ``prune`` namespace, â€¦). When
+        (``add``, ``search``, ``forget``, ``prune`` namespace, …). When
         ``None``, the adapter lazily imports the real ``cognee`` module
         on first use. Tests inject a :class:`unittest.mock.MagicMock`
         and never touch the real SDK.
@@ -294,13 +294,13 @@ class CogneeStore:
         multi-tenant deployments.
     config:
         Optional dict applied to ``cognee.config`` on lazy construction.
-        Forward-looking â€” unused at v0 but accepted so the constructor
+        Forward-looking — unused at v0 but accepted so the constructor
         signature is stable. Ignored if ``client`` is supplied.
 
     Notes
     -----
     The class is **not** declared as ``class CogneeStore(MemoryStore):``
-    â€” :class:`memorywire.store.MemoryStore` is a ``@runtime_checkable`` Protocol
+    — :class:`memorywire.store.MemoryStore` is a ``@runtime_checkable`` Protocol
     and structural typing via ``isinstance`` works without inheritance
     (verified in ``tests/unit/store/test_cognee_adapter.py``).
     """
@@ -378,12 +378,12 @@ class CogneeStore:
     def capabilities(self) -> set[str]:
         """Capabilities Cognee supports under memorywire semantics.
 
-        * ``semantic`` / ``episodic`` â€” Cognee ingests any natural-language
+        * ``semantic`` / ``episodic`` — Cognee ingests any natural-language
           text; memorywire type tags ride in the JSON header line and are
           round-tripped via :func:`_unwrap_content`.
-        * ``vector`` â€” Cognee's pipeline builds vector embeddings via the
+        * ``vector`` — Cognee's pipeline builds vector embeddings via the
           configured provider (LanceDB by default).
-        * ``graph`` â€” Cognee is graph-database-backed (Kuzu / Neo4j) and
+        * ``graph`` — Cognee is graph-database-backed (Kuzu / Neo4j) and
           serves graph-completion search natively. This is the Cognee
           adapter's distinguishing capability.
 
@@ -415,13 +415,13 @@ class CogneeStore:
         spec-gap: Cognee's ``add`` ingests asynchronously into a pipeline
         and returns no per-record id (it builds a graph over chunks
         instead). The adapter synthesises a stable ``cog:<sha1>`` id at
-        write time and stashes it inside the memorywire header â€” :meth:`recall`
+        write time and stashes it inside the memorywire header — :meth:`recall`
         surfaces this id verbatim so callers see a consistent identifier.
 
         Governance: when ``req.approval_required`` is True, the adapter
         short-circuits and returns ``pending_approval=True`` *without*
         calling Cognee. Higher-layer governance is expected to replay the
-        request to the adapter on approval â€” same convention as the
+        request to the adapter on approval — same convention as the
         Letta / mem0 adapters.
         """
         # Governance short-circuit.
@@ -472,7 +472,7 @@ class CogneeStore:
         """Retrieve memories via Cognee's ``search``/``recall`` and map to memorywire hits.
 
         Uses Cognee's :class:`SearchType.GRAPH_COMPLETION` when no other
-        signal is provided â€” the graph-completion path is the Cognee
+        signal is provided — the graph-completion path is the Cognee
         differentiator. Post-filters in Python on ``req.types`` (against
         the memorywire-header ``type``) and ``req.fresher_than_days`` (against
         the memorywire-header ``created_at``).
@@ -530,7 +530,7 @@ class CogneeStore:
             overlay, content, score = _entry_to_overlay_and_text(raw)
 
             # Apply agent_id scoping. Records written by other agents
-            # (or outside this adapter) carry no memorywire header â€” surface
+            # (or outside this adapter) carry no memorywire header — surface
             # them too so cross-agent recall remains possible, but only
             # if the request didn't pin types (the type filter implies
             # the caller wants adapter-owned rows).
@@ -566,7 +566,7 @@ class CogneeStore:
 
             mem_id = overlay.get("id")
             if not isinstance(mem_id, str) or not mem_id:
-                # No adapter-stamped id â€” synthesise a deterministic one
+                # No adapter-stamped id — synthesise a deterministic one
                 # from the content so the recall response is still
                 # well-formed. Downstream callers can detect the
                 # ``cog:nohdr:`` prefix and treat it as advisory only.
@@ -610,18 +610,18 @@ class CogneeStore:
         spec-gap: Cognee's public ``forget`` only accepts ``data_id`` +
         ``dataset`` (UUIDs assigned by the ingestion pipeline) or
         ``everything=True``. There is **no delete-by-content-id**
-        primitive â€” the synthetic ``cog:<sha1>`` ids the adapter mints
+        primitive — the synthetic ``cog:<sha1>`` ids the adapter mints
         on remember are *not* recognised by Cognee. To stay safe:
 
         * ``ids=[...]`` is accepted but each id is dispatched
           best-effort: if the id looks like a Cognee UUID it is passed
           straight through; if it is an adapter-synthetic ``cog:`` id
           the per-id delete is recorded as a no-op (audit log records
-          the deviation) â€” spec-gap.
+          the deviation) — spec-gap.
         * ``filter`` is honoured only when it contains a ``data_id``
           key whose value is a UUID; otherwise the request is rejected
           rather than mass-deleting the entire dataset.
-        * Per spec Â§3.3 a request with neither ``ids`` nor ``filter``
+        * Per spec §3.3 a request with neither ``ids`` nor ``filter``
           is rejected as a no-scope mass-delete.
         """
         if not req.ids and not req.filter:
@@ -642,17 +642,17 @@ class CogneeStore:
                 return True
             except Exception:
                 # Treat per-id errors the same as the Letta/mem0
-                # adapters â€” swallow and keep going.
+                # adapters — swallow and keep going.
                 return False
 
-        # Path A â€” explicit ids.
+        # Path A — explicit ids.
         if req.ids:
             for mid in req.ids:
                 ok = await _delete_one(mid)
                 if ok:
                     forgotten.append(mid)
 
-        # Path B â€” filter-based delete. Cognee has no server-side
+        # Path B — filter-based delete. Cognee has no server-side
         # content-filter primitive, so we only honour the narrow
         # ``data_id`` shape; anything else is rejected (vs. silently
         # mass-deleting).
@@ -691,7 +691,7 @@ class CogneeStore:
            For ``keep_canonical`` the canonical row is preserved
            verbatim and only the duplicates are dropped.
 
-        spec-gap: same caveat as the Letta adapter â€” the duplicates
+        spec-gap: same caveat as the Letta adapter — the duplicates
         cannot actually be deleted from Cognee unless their original
         Cognee ``data_id`` UUIDs are supplied; adapter-synthetic
         ``cog:`` ids are recorded as a no-op delete. ``merged_count``
@@ -826,8 +826,8 @@ class CogneeStore:
             overlay = dict(best.get("overlay") or {})
             return content, overlay
 
-        # MERGE_CONTENT â€” join content with " | " (same separator the
-        # Letta/mem0 adapters pick). max(confidence) wins per spec Â§3.4.
+        # MERGE_CONTENT — join content with " | " (same separator the
+        # Letta/mem0 adapters pick). max(confidence) wins per spec §3.4.
         pieces: list[str] = []
         for rec in ordered:
             piece = str(rec.get("content") or "").strip()
@@ -856,20 +856,20 @@ class CogneeStore:
         """Apply an expiration policy to a subset of memories.
 
         Cognee does not track per-record last-recalled-at, so a policy
-        carrying ``no_recall_in_days`` is rejected (spec Â§3.5: "Backends
+        carrying ``no_recall_in_days`` is rejected (spec §3.5: "Backends
         that do not track last-recalled-at MUST return an error").
 
         Actions:
 
-        * ``forget`` â€” :meth:`forget` per matched row.
-        * ``archive`` â€” re-create the row via :meth:`remember` with the
+        * ``forget`` — :meth:`forget` per matched row.
+        * ``archive`` — re-create the row via :meth:`remember` with the
           memorywire-header ``archived`` flag set, then drop the original.
           spec-gap: same "no in-place update" caveat as Letta.
-        * ``demote`` â€” re-create with ``confidence * 0.25`` baked in,
+        * ``demote`` — re-create with ``confidence * 0.25`` baked in,
           then drop the original. spec-gap.
 
         spec-gap: matching rows are discovered via a bare ``search`` call
-        with an empty-ish query â€” there is no ``list_all`` on Cognee's
+        with an empty-ish query — there is no ``list_all`` on Cognee's
         public surface. The discovery is best-effort and bounded by
         ``top_k=1000``. v0.2 should add a proper iterator API once the
         SDK exposes one.
@@ -923,7 +923,7 @@ class CogneeStore:
         matched: list[tuple[dict[str, Any], str]] = []
         for raw in raw_results:
             overlay, content, _ = _entry_to_overlay_and_text(raw)
-            # Adapter-owned rows only â€” never expire random ingested
+            # Adapter-owned rows only — never expire random ingested
             # corpora that lack an memorywire header.
             mem_id = overlay.get("id")
             if not isinstance(mem_id, str) or not mem_id:
@@ -956,7 +956,7 @@ class CogneeStore:
                     if not mem_id.startswith("cog:"):
                         await module.forget(data_id=mem_id, dataset=self._dataset)
             elif action is ExpireAction.ARCHIVE:
-                # spec-gap: no in-place update â€” re-write with archived
+                # spec-gap: no in-place update — re-write with archived
                 # flag, then drop the original.
                 archive_req = RememberRequest(
                     agent_id=req.agent_id,
@@ -1011,7 +1011,7 @@ class CogneeStore:
         "error": "<reason>"}`` when the probe raises. We avoid calling
         the search pipeline (which would require an LLM round-trip) and
         use ``cognee.datasets.list_datasets`` as the cheapest signal
-        that the module loaded â€” when the SDK doesn't expose it we fall
+        that the module loaded — when the SDK doesn't expose it we fall
         back to a bare "module imported" check.
         """
         try:

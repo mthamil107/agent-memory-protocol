@@ -21,7 +21,7 @@ def _templates(request: Request) -> Jinja2Templates:
 
 
 async def dashboard(request: Request) -> Response:
-    """GET ``/health-dashboard`` â€” render the four health cards."""
+    """GET ``/health-dashboard`` — render the four health cards."""
     db_path: str = request.app.state.db_path
     agent_id: str = request.app.state.agent_id
 

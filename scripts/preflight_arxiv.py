@@ -1,4 +1,4 @@
-"""arXiv pre-upload preflight â€” runs against the checklist arXiv displays
+"""arXiv pre-upload preflight — runs against the checklist arXiv displays
 just before file upload. Catches the issues that slow down announcement:
 
   1. TeX source is present (not PDF-only).

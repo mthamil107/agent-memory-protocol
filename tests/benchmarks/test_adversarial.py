@@ -6,18 +6,18 @@ skips it; opt in with ``pytest -m benchmark``.
 
 What it checks
 --------------
-* The adversarial-fusion pipeline (corpus â†’ stores â†’ router â†’ metrics)
+* The adversarial-fusion pipeline (corpus → stores → router → metrics)
   wires end-to-end and produces a per-K curve of the expected shape.
 * Qualitative direction under ``fusion=max`` (the algorithm that *is*
   score-sensitive and therefore breaks under adversarial input):
     - recall@5 at K=0 is strictly better than at K=M (more attacker
-      budget â†’ worse fused recall).
+      budget → worse fused recall).
     - adversarial leak rate is monotonically non-decreasing in K (more
-      attacker budget â†’ more attacker rows in the fused top-5).
-* Under ``fusion=rrf`` we assert the opposite property â€” RRF should
+      attacker budget → more attacker rows in the fused top-5).
+* Under ``fusion=rrf`` we assert the opposite property — RRF should
   remain robust against a single rogue store, so recall@5 doesn't drop
   catastrophically across the swept K. This is the property
-  ``docs/THREATS.md`` Â§3.3 claims.
+  ``docs/THREATS.md`` §3.3 claims.
 
 If the script's helpers can't be imported (e.g. amp / pydantic missing
 from the test environment) the module is skipped cleanly.
@@ -35,7 +35,7 @@ _REPO_ROOT = Path(__file__).resolve().parent.parent.parent
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
-# The runner imports amp.* â€” skip cleanly if the memorywire package isn't installed
+# The runner imports amp.* — skip cleanly if the memorywire package isn't installed
 # in this environment.
 _HAS_AMP = importlib.util.find_spec("amp") is not None
 
@@ -54,7 +54,7 @@ async def test_adversarial_pipeline_max_collapses() -> None:
 
     Tiny config (N=3 stores, M=10 memories, Q=3 queries, K in {0,2,4})
     so the test stays well under a second. We assert directional
-    properties, not numeric thresholds â€” that's what protects against
+    properties, not numeric thresholds — that's what protects against
     a real regression in the router's fusion math without making the
     test fragile to harmless seed changes.
     """
@@ -97,7 +97,7 @@ async def test_adversarial_pipeline_max_collapses() -> None:
 
     # At K=0 leak must be exactly zero (no attacker rows in play).
     assert result.leak[0] == 0.0
-    # By K=M the rogue store is filling top ranks with attackers â€” the
+    # By K=M the rogue store is filling top ranks with attackers — the
     # leak must be observably non-zero.
     assert result.leak[-1] > 0.0
 
@@ -106,7 +106,7 @@ async def test_adversarial_pipeline_max_collapses() -> None:
 async def test_adversarial_pipeline_rrf_robust() -> None:
     """Under ``fusion=rrf`` a 1-of-3 rogue store does NOT collapse recall.
 
-    This is the property ``docs/THREATS.md`` Â§3.3 claims and the
+    This is the property ``docs/THREATS.md`` §3.3 claims and the
     experiment's defensible-operating-point story rests on. If the
     router's RRF math regresses (e.g. someone accidentally adds the
     item's own score into ``_fusion_contribution``), this test will

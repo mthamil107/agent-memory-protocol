@@ -11,7 +11,7 @@ Design notes
 * The ``mem0`` package is an *optional extra* (``pip install
   memorywire[mem0]``). The import lives behind ``TYPE_CHECKING``
   and inside :meth:`Mem0Store._get_client` so this module loads cleanly even
-  without mem0 installed â€” unit tests use ``unittest.mock`` and never need
+  without mem0 installed — unit tests use ``unittest.mock`` and never need
   the real SDK.
 * mem0's public client is **synchronous**. Every method on this adapter
   awaits ``anyio.to_thread.run_sync`` so the memorywire async surface stays honest.
@@ -20,7 +20,7 @@ Design notes
   of a top-level ``user_id`` kwarg) and renamed ``limit`` to ``top_k``. The
   adapter targets the v2.x API; older v0.1.x is not supported. See
   ``spec-gap`` comments throughout for divergences from the task contract.
-* mem0 has no native ``merge`` primitive and only supports hard delete â€”
+* mem0 has no native ``merge`` primitive and only supports hard delete —
   both are emulated and flagged with ``spec-gap`` comments.
 """
 
@@ -54,7 +54,7 @@ from memorywire.models import (
 )
 from memorywire.store.base import Capability
 
-if TYPE_CHECKING:  # pragma: no cover â€” typing-only.
+if TYPE_CHECKING:  # pragma: no cover — typing-only.
     # The real mem0.Memory type is only imported for static analysis so the
     # module body remains import-safe without the ``mem0`` extra installed.
     from mem0 import Memory as _Mem0Memory  # noqa: F401
@@ -77,7 +77,7 @@ _AMP_META_ARCHIVED = "archived"
 
 
 def _now_ms() -> int:
-    """Return Unix epoch milliseconds â€” the memorywire wire timestamp format."""
+    """Return Unix epoch milliseconds — the memorywire wire timestamp format."""
     return int(time.time() * 1000)
 
 
@@ -86,7 +86,7 @@ def _to_epoch_ms(value: Any) -> int | None:
 
     mem0 typically returns ISO-8601 strings (e.g. ``"2026-05-26T12:00:00"``)
     or integer epoch seconds. memorywire requires Unix epoch *milliseconds*. Unknown
-    shapes return ``None`` â€” the field is optional on :class:`RecallHit`.
+    shapes return ``None`` — the field is optional on :class:`RecallHit`.
     """
     if value is None:
         return None
@@ -126,7 +126,7 @@ class Mem0Store:
     client:
         An already-constructed ``mem0.Memory`` (or compatible mock) instance.
         When ``None``, the adapter lazily constructs a default ``Memory()``
-        on first use â€” lazy because mem0's default constructor may attempt
+        on first use — lazy because mem0's default constructor may attempt
         to reach OpenAI for embeddings/LLM, which we don't want at import
         time or during unit testing.
     config:
@@ -135,7 +135,7 @@ class Mem0Store:
 
     Notes
     -----
-    The class is **not** declared as ``class Mem0Store(MemoryStore):`` â€”
+    The class is **not** declared as ``class Mem0Store(MemoryStore):`` —
     :class:`memorywire.store.MemoryStore` is a ``@runtime_checkable`` Protocol, and
     direct inheritance would force the more invasive ``ABC`` form. Structural
     typing via ``isinstance`` works either way (tested in
@@ -163,7 +163,7 @@ class Mem0Store:
 
         URL anatomy: ``mem0://<profile>`` where ``<profile>`` is a named
         configuration. For v0 only ``"default"`` is recognised (no config
-        applied â€” the SDK's own defaults are used). Query parameters are
+        applied — the SDK's own defaults are used). Query parameters are
         accepted but ignored; richer config is deferred to v0.2.
 
         spec-gap: profile-to-config mapping beyond ``"default"`` is deferred
@@ -182,8 +182,8 @@ class Mem0Store:
                 f"Mem0Store.from_url expects a 'mem0://' scheme; got {parsed.scheme!r}"
             )
         # The host slot carries the profile name in this URL form (e.g.
-        # ``mem0://default`` â†’ host == "default"). ``parsed.path`` is empty.
-        # We accept any profile name without raising â€” unknown profiles fall
+        # ``mem0://default`` → host == "default"). ``parsed.path`` is empty.
+        # We accept any profile name without raising — unknown profiles fall
         # back to default behaviour (spec-gap above).
         return cls(client=client)
 
@@ -208,13 +208,13 @@ class Mem0Store:
     def capabilities(self) -> set[str]:
         """Capabilities mem0 supports under memorywire semantics.
 
-        * ``semantic`` / ``episodic`` â€” mem0 stores arbitrary natural-language
+        * ``semantic`` / ``episodic`` — mem0 stores arbitrary natural-language
           facts; we surface both via the ``amp_type`` metadata tag.
-        * ``vector`` â€” mem0 ships its own vector store under the hood.
+        * ``vector`` — mem0 ships its own vector store under the hood.
 
         mem0 does **not** offer procedural FSMs (it has a distinct
         ``procedural_memory`` mode that summarizes an agent's run, but that's
-        not the memorywire procedural-FSM contract â€” different shape), graph hops,
+        not the memorywire procedural-FSM contract — different shape), graph hops,
         FTS, last-recalled-at tracking, or HITL governance. Those are
         deliberately absent from the set so the router can skip mem0 for
         those operations.
@@ -266,7 +266,7 @@ class Mem0Store:
         Used by :meth:`forget` for filter-based deletes, since mem0 doesn't
         expose a server-side filter beyond entity-ids. Keys are matched
         against top-level mem0 fields first (``id``, ``memory``, ``user_id``,
-        â€¦), then against the record's nested ``metadata`` dict, with the
+        …), then against the record's nested ``metadata`` dict, with the
         special-case that the memorywire ``type`` field maps to the
         ``amp_type`` metadata tag this adapter writes on remember.
         """
@@ -308,7 +308,7 @@ class Mem0Store:
         calling mem0. Higher-layer governance is expected to replay the
         request to the adapter on approval.
         """
-        # Governance short-circuit â€” never write to the backend when an
+        # Governance short-circuit — never write to the backend when an
         # approval is pending. Higher layers will replay on approve. The
         # synthetic ``pending:`` id is a placeholder because pydantic
         # requires ``id`` to be non-empty (min_length=1); callers gate on
@@ -397,7 +397,7 @@ class Mem0Store:
         skipped silently when the backend omits the field).
 
         spec-gap: ``fusion_used`` is reported as ``"rrf"`` even though mem0
-        runs its own internal fusion â€” the field documents the *adapter's*
+        runs its own internal fusion — the field documents the *adapter's*
         intent, not a guarantee about what mem0 did internally. Acceptable
         wart.
         """
@@ -444,7 +444,7 @@ class Mem0Store:
 
             # Resolve the memorywire type from the metadata tag the adapter writes
             # on remember. Records written outside the adapter are assumed
-            # semantic â€” mem0's default mode is declarative-fact extraction.
+            # semantic — mem0's default mode is declarative-fact extraction.
             type_str = metadata.get(_AMP_META_TYPE) or "semantic"
             try:
                 amp_type = MemoryType(type_str)
@@ -461,7 +461,7 @@ class Mem0Store:
             # the backend omits ``created_at`` we cannot honour the filter;
             # skipping silently rather than dropping the row matches the
             # spec section-3.5 stance for missing recall-tracking ("backends
-            # that don't track X return an error") â€” but for *recall* we
+            # that don't track X return an error") — but for *recall* we
             # treat it as best-effort. spec-gap: documented in the module
             # docstring.
             if (
@@ -511,7 +511,7 @@ class Mem0Store:
         is False (the memorywire default), this adapter still performs a hard delete
         and surfaces ``hard_delete=False`` in the response only because the
         caller asked for soft. Higher-layer audit logging should record the
-        deviation. Per spec Â§3.3 a request with neither ``ids`` nor
+        deviation. Per spec §3.3 a request with neither ``ids`` nor
         ``filter`` is rejected as a no-scope mass-delete.
         """
         if not req.ids and not req.filter:
@@ -520,7 +520,7 @@ class Mem0Store:
         client = self._get_client()
         forgotten: list[str] = []
 
-        # Path A â€” explicit ids.
+        # Path A — explicit ids.
         if req.ids:
             for mid in req.ids:
 
@@ -535,7 +535,7 @@ class Mem0Store:
                     # continue. The audit log (Phase 6) tracks per-id outcomes.
                     continue
 
-        # Path B â€” filter-based delete. mem0 has no server-side filter
+        # Path B — filter-based delete. mem0 has no server-side filter
         # primitive beyond entity-ids, so resolve client-side via get_all.
         if req.filter:
             principal_filters = self._build_filters(req)
@@ -544,7 +544,7 @@ class Mem0Store:
             for key in ("user_id", "agent_id", "run_id"):
                 if key in req.filter:
                     principal_filters[key] = req.filter[key]
-            # If we still have no principal we can't query mem0 â€” raise so
+            # If we still have no principal we can't query mem0 — raise so
             # the caller doesn't accidentally mass-delete.
             if not principal_filters:
                 raise ValueError(
@@ -595,7 +595,7 @@ class Mem0Store:
 
         1. Fetch each duplicate via ``client.get(id)``; also fetch the
            canonical when its id resolves (canonical may be a *name* rather
-           than an id â€” see spec Â§3.4 â€” in which case the lookup is
+           than an id — see spec §3.4 — in which case the lookup is
            best-effort).
         2. Apply the requested ``MergeStrategy`` to produce a new content
            string and confidence.
@@ -605,8 +605,8 @@ class Mem0Store:
            and only the duplicates are dropped.
 
         spec-gap: ``merge_content`` joins content fields with ``" | "``
-        rather than ``"\\n"`` (the spec Â§3.4 Editor's note says "MAY
-        concatenate ... with a newline separator" â€” MAY, not MUST). The
+        rather than ``"\\n"`` (the spec §3.4 Editor's note says "MAY
+        concatenate ... with a newline separator" — MAY, not MUST). The
         " | " separator keeps merged content compact for the LLM context
         window. v0.2 will tighten this.
         """
@@ -727,8 +727,8 @@ class Mem0Store:
         """Produce ``(content, metadata)`` for the merged canonical record."""
 
         # Union all metadata across rows (last-write-wins on conflicts,
-        # ordered by created_at ascending if available â€” falls back to the
-        # input order). max(confidence) wins on merge_content per spec Â§3.4.
+        # ordered by created_at ascending if available — falls back to the
+        # input order). max(confidence) wins on merge_content per spec §3.4.
         def _sort_key(rec: dict[str, Any]) -> int:
             return _to_epoch_ms(rec.get("created_at")) or 0
 
@@ -749,7 +749,7 @@ class Mem0Store:
 
         if strategy is MergeStrategy.KEEP_HIGHEST_CONFIDENCE:
             # Whichever row has the highest amp_confidence wins; ties broken
-            # by older created_at (already sorted ascending â€” pick first
+            # by older created_at (already sorted ascending — pick first
             # among the highest).
             best_record = ordered[0]
             best_conf = float("-inf")
@@ -763,7 +763,7 @@ class Mem0Store:
             return content, union_metadata
 
         # MERGE_CONTENT (default for the non-keep_canonical branch).
-        # spec-gap: " | " separator rather than "\n" â€” see method docstring.
+        # spec-gap: " | " separator rather than "\n" — see method docstring.
         pieces: list[str] = []
         for rec in ordered:
             piece = str(rec.get("memory") or rec.get("data") or "").strip()
@@ -775,17 +775,17 @@ class Mem0Store:
         """Apply an expiration policy to a subset of memories.
 
         mem0 doesn't track last-recalled-at, so a policy carrying
-        ``no_recall_in_days`` is rejected (spec Â§3.5: "Backends that do
+        ``no_recall_in_days`` is rejected (spec §3.5: "Backends that do
         not track last-recalled-at MUST return an error").
 
         Actions:
 
-        * ``forget`` â€” ``client.delete(id)`` per match.
-        * ``archive`` â€” ``client.update(id, data=existing_content,
+        * ``forget`` — ``client.delete(id)`` per match.
+        * ``archive`` — ``client.update(id, data=existing_content,
           metadata={..., "archived": True})``. spec-gap: mem0's ``update``
           requires a ``data`` (new content) argument; we pass the existing
           content unchanged.
-        * ``demote`` â€” multiplies stored ``amp_confidence`` by 0.25 and
+        * ``demote`` — multiplies stored ``amp_confidence`` by 0.25 and
           persists via ``update``.
         """
         policy = req.policy
@@ -830,7 +830,7 @@ class Mem0Store:
             if cutoff_ms is not None:
                 created_at_raw = record.get("created_at") or metadata.get("created_at")
                 created_at_ms = _to_epoch_ms(created_at_raw)
-                # Policies are ANDed (spec Â§3.5 Editor's note). Skip rows
+                # Policies are ANDed (spec §3.5 Editor's note). Skip rows
                 # without a timestamp when the policy requires age.
                 if created_at_ms is None or created_at_ms >= cutoff_ms:
                     continue
@@ -873,7 +873,7 @@ class Mem0Store:
 
                 await anyio.to_thread.run_sync(_do_archive)
             else:  # DEMOTE
-                # Multiply confidence by 0.25 â€” the spec Â§3.5 default
+                # Multiply confidence by 0.25 — the spec §3.5 default
                 # server-side score multiplier for demoted rows.
                 existing_conf = metadata.get(_AMP_META_CONFIDENCE)
                 if isinstance(existing_conf, (int, float)):

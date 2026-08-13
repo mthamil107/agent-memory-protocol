@@ -1,4 +1,4 @@
-"""amp-governance-ui â€” Pro-tier governance surface over the memorywire protocol.
+"""amp-governance-ui — Pro-tier governance surface over the memorywire protocol.
 
 The UI consumes the same SQLite database the
 :class:`memorywire.store.sqlite_vec.SqliteVecStore` adapter writes to. It exposes

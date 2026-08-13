@@ -1,4 +1,4 @@
-"""The :class:`Memory` facade â€” the public ergonomic entry point for memorywire.
+"""The :class:`Memory` facade — the public ergonomic entry point for memorywire.
 
 This module is intentionally a *thin* wrapper. All real fan-out logic lives
 in :class:`memorywire.router.MemoryRouter`; this class translates ergonomic
@@ -10,22 +10,22 @@ the bare results list).
 URL dispatch
 ------------
 ``stores`` accepts either pre-built :class:`MemoryStore` instances or URL
-strings. The URL â†’ adapter mapping is centralized in :func:`_build_store`:
+strings. The URL → adapter mapping is centralized in :func:`_build_store`:
 
-* ``sqlite-vec://<path>`` â†’ :class:`memorywire.store.sqlite_vec.SqliteVecStore`
-* ``mem0://<profile>``    â†’ :class:`memorywire.store.mem0_adapter.Mem0Store`
-* ``letta://<host>``      â†’ :class:`memorywire.store.letta_adapter.LettaStore`
+* ``sqlite-vec://<path>`` → :class:`memorywire.store.sqlite_vec.SqliteVecStore`
+* ``mem0://<profile>``    → :class:`memorywire.store.mem0_adapter.Mem0Store`
+* ``letta://<host>``      → :class:`memorywire.store.letta_adapter.LettaStore`
 
 Unknown schemes raise :class:`ValueError`. This is the only place where
-URL â†’ backend wiring lives; adapters under :mod:`memorywire.store` are
+URL → backend wiring lives; adapters under :mod:`memorywire.store` are
 responsible for parsing their own URL paths via ``from_url``.
 
 Phase-6 hook (governance)
 -------------------------
-The ``governance`` constructor kwarg is accepted but inert at Phase 5 â€”
+The ``governance`` constructor kwarg is accepted but inert at Phase 5 —
 the governance client lands in Phase 6. The attribute is stored on the
 instance so external code can inspect it; the router itself does not
-consume it yet. See spec Â§6.
+consume it yet. See spec §6.
 """
 
 from __future__ import annotations
@@ -54,7 +54,7 @@ from memorywire.models import (
 from memorywire.router import MemoryRouter
 from memorywire.store.base import MemoryStore
 
-if TYPE_CHECKING:  # pragma: no cover â€” typing-only.
+if TYPE_CHECKING:  # pragma: no cover — typing-only.
     pass
 
 
@@ -68,12 +68,12 @@ def _build_store(url: str) -> MemoryStore:
 
     Recognised schemes:
 
-    * ``sqlite-vec://...`` (also ``sqlite+vec``, ``sqlitevec``) â€” local
+    * ``sqlite-vec://...`` (also ``sqlite+vec``, ``sqlitevec``) — local
       SQLite + sqlite-vec store.
-    * ``mem0://...`` â€” mem0 SDK adapter.
-    * ``letta://...`` â€” Letta (letta-client) archival-memory adapter.
-    * ``cognee://...`` â€” Cognee graph + vector adapter.
-    * ``pgvector://...`` (also ``pgvector+postgres``) â€” Postgres + pgvector
+    * ``mem0://...`` — mem0 SDK adapter.
+    * ``letta://...`` — Letta (letta-client) archival-memory adapter.
+    * ``cognee://...`` — Cognee graph + vector adapter.
+    * ``pgvector://...`` (also ``pgvector+postgres``) — Postgres + pgvector
       ANN store. ``pgvector://default`` reads ``DATABASE_URL``.
 
     Any other scheme raises :class:`ValueError`. The function does *not*
@@ -134,7 +134,7 @@ class Memory:
         Default fusion algorithm passed to the router. Per-call overrides
         on :meth:`recall` win when set.
     governance:
-        Phase-6 hook. Accepted but currently inert â€” stored on the
+        Phase-6 hook. Accepted but currently inert — stored on the
         instance for future wiring. Pass ``None`` at Phase 5.
     write_policy:
         ``"all"`` (default) fans :meth:`remember` out to every capable
@@ -160,7 +160,7 @@ class Memory:
             if isinstance(entry, str):
                 built.append(_build_store(entry))
             else:
-                # Trust the caller â€” duck-typed against the Protocol. The
+                # Trust the caller — duck-typed against the Protocol. The
                 # router does its own isinstance(MemoryStore, ...) check
                 # only at construction-time validation if asked, but the
                 # Protocol is structural so any compatible object works.
@@ -216,7 +216,7 @@ class Memory:
     ) -> RememberResponse:
         """Write a memory and return the protocol response.
 
-        See spec Â§3.1 for the field contract.
+        See spec §3.1 for the field contract.
         """
         req = RememberRequest(
             agent_id=self._agent_id,
@@ -250,7 +250,7 @@ class Memory:
         """Read memories matching ``query`` and return the bare hit list.
 
         Unlike the protocol's :class:`RecallResponse` shape, this method
-        returns just the ``results`` list â€” callers usually want the rows,
+        returns just the ``results`` list — callers usually want the rows,
         not the bookkeeping fields. Use ``self.router.recall()`` directly
         if you need ``latency_ms`` / ``stores_queried`` / ``fusion_used``.
         """
@@ -283,7 +283,7 @@ class Memory:
     ) -> ForgetResponse:
         """Delete memories by id list or filter.
 
-        Spec Â§3.3: at least one of ``ids`` / ``filter`` is required.
+        Spec §3.3: at least one of ``ids`` / ``filter`` is required.
         """
         if not ids and not filter:
             raise ValueError("forget requires `ids` or `filter`")
@@ -369,7 +369,7 @@ class Memory:
                 if inspect.isawaitable(result):
                     await result
             except Exception:
-                # Closing is best-effort â€” never raise out of ``close``.
+                # Closing is best-effort — never raise out of ``close``.
                 continue
 
 

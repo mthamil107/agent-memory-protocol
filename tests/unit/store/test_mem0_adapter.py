@@ -1,7 +1,7 @@
 """Unit tests for :class:`memorywire.store.mem0_adapter.Mem0Store`.
 
 These tests use :class:`unittest.mock.MagicMock` to stand in for the real
-``mem0.Memory`` client â€” the mem0 SDK is never touched. The goal is to
+``mem0.Memory`` client — the mem0 SDK is never touched. The goal is to
 prove the adapter translates memorywire requests into the right mem0 calls and
 maps the mocked responses back into the memorywire response models correctly.
 
@@ -151,7 +151,7 @@ async def test_remember_falls_back_to_agent_id_when_no_user_id() -> None:
 
 
 async def test_remember_with_approval_required_skips_client() -> None:
-    """``approval_required=True`` short-circuits â€” no mem0 call, ``pending_approval``."""
+    """``approval_required=True`` short-circuits — no mem0 call, ``pending_approval``."""
     client = _make_client()
     store = Mem0Store(client=client)
 
@@ -330,7 +330,7 @@ async def test_forget_by_ids_calls_delete_for_each() -> None:
 
 
 async def test_forget_without_ids_or_filter_raises() -> None:
-    """No-scope mass-delete protection (spec Â§3.3): must raise ``ValueError``."""
+    """No-scope mass-delete protection (spec §3.3): must raise ``ValueError``."""
     store = Mem0Store(client=_make_client())
     with pytest.raises(ValueError, match=r"ids.*filter"):
         await store.forget(ForgetRequest(agent_id="agent-a"))
@@ -390,9 +390,9 @@ async def test_forget_continues_on_per_id_delete_error() -> None:
 async def test_merge_keep_canonical_deletes_only_duplicates() -> None:
     """``keep_canonical`` preserves the canonical row verbatim and drops dupes.
 
-    Semantic choice: spec Â§3.4 says canonical is "preserved verbatim;
+    Semantic choice: spec §3.4 says canonical is "preserved verbatim;
     duplicates are dropped after pointer migration". This adapter only owns
-    the dropping half â€” pointer migration is router-layer (Phase 4). So we
+    the dropping half — pointer migration is router-layer (Phase 4). So we
     assert: no ``client.add`` is called (canonical stays in place) and
     each duplicate id is passed to ``client.delete``.
     """
@@ -521,7 +521,7 @@ async def test_expire_older_than_days_forget_deletes_matches() -> None:
 
 
 async def test_expire_no_recall_in_days_unsupported() -> None:
-    """``no_recall_in_days`` MUST raise â€” mem0 lacks last-recalled-at tracking."""
+    """``no_recall_in_days`` MUST raise — mem0 lacks last-recalled-at tracking."""
     store = Mem0Store(client=_make_client())
     with pytest.raises(ValueError, match="no_recall_in_days"):
         await store.expire(

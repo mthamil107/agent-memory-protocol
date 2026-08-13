@@ -1,6 +1,6 @@
-"""The :class:`MemoryRouter` â€” a :class:`memorywire.store.MemoryStore` composed of N child stores.
+"""The :class:`MemoryRouter` — a :class:`memorywire.store.MemoryStore` composed of N child stores.
 
-The router is the centrepiece of memorywire's "any-backend" promise (spec Â§5). It
+The router is the centrepiece of memorywire's "any-backend" promise (spec §5). It
 fans operations out to a set of child stores in parallel, fuses results
 with one of three algorithms (RRF / max / weighted), and optionally
 boosts items connected via 1-2 graph hops. Because :class:`MemoryRouter`
@@ -17,11 +17,11 @@ Design notes
 * Per-request ``fusion`` (on :class:`RecallRequest`) overrides the
   router-level ``default_fusion``.
 * Each store gets ``req.k * 4`` as its per-store k (matches
-  :file:`docs/kickoff/ARCHITECTURE.md` Â§5 pseudocode: over-fetch then
+  :file:`docs/kickoff/ARCHITECTURE.md` §5 pseudocode: over-fetch then
   re-rank).
 * Graph-hop boost dispatches to stores implementing the
   :class:`Neighborable` Protocol. Adapters in Phase 3 (sqlite-vec, mem0)
-  don't implement it yet â€” Phase v0.2 will add Cognee/Letta with real
+  don't implement it yet — Phase v0.2 will add Cognee/Letta with real
   graph traversal. Until then the router silently skips the boost when
   no store declares :attr:`memorywire.store.Capability.GRAPH`.
 """
@@ -66,7 +66,7 @@ def _now_ms() -> int:
     return int(time.time() * 1000)
 
 
-# Memory-type â†’ capability-string mapping. Kept in one place so the routing
+# Memory-type → capability-string mapping. Kept in one place so the routing
 # rules ("skip stores that don't support this type") stay consistent across
 # remember/recall.
 _TYPE_TO_CAPABILITY: dict[MemoryType, str] = {
@@ -93,7 +93,7 @@ class Neighborable(Protocol):
     MAY be communicated by stores via :attr:`RecallHit.metadata` under the
     key ``"hop_distance"`` (defaults to 1 when missing).
 
-    No adapter implements this Protocol at v0 â€” Cognee and Letta (Phase
+    No adapter implements this Protocol at v0 — Cognee and Letta (Phase
     v0.2) will be the first. The router uses ``isinstance(store,
     Neighborable)`` to detect support at runtime.
     """
@@ -121,14 +121,14 @@ class MemoryRouter:
         Defaults to :class:`FusionAlgorithm.RRF`.
     rrf_k:
         The constant used in the RRF formula ``1 / (rrf_k + rank)``. Spec
-        Â§5 fixes this at 60; exposed as a parameter for benchmarking.
+        §5 fixes this at 60; exposed as a parameter for benchmarking.
     graph_boost_factor:
         Multiplier in the graph-hop boost formula
         ``new_score = old_score * (1 + graph_boost_factor / (1 + hop_distance))``.
-        Spec Â§5 fixes this at 0.1; exposed as a parameter for tuning.
+        Spec §5 fixes this at 0.1; exposed as a parameter for tuning.
     weights:
         Per-store weights for ``fusion="weighted"``. Keys are store
-        identifiers â€” preferred is the ``backend`` value from
+        identifiers — preferred is the ``backend`` value from
         :meth:`MemoryStore.health`, falling back to ``repr(store)``.
         Missing keys default to 1.0.
     write_policy:
@@ -148,7 +148,7 @@ class MemoryRouter:
     ) -> None:
         if not stores:
             raise ValueError("MemoryRouter requires at least one store")
-        # Keep an immutable tuple â€” the router is inert without children
+        # Keep an immutable tuple — the router is inert without children
         # and shouldn't be mutable post-construction.
         self._stores: tuple[MemoryStore, ...] = tuple(stores)
         self._default_fusion: FusionAlgorithm = default_fusion
@@ -204,7 +204,7 @@ class MemoryRouter:
     def _store_id_sync(store: MemoryStore) -> str:
         """Synchronous best-effort store id (used inside fusion loops).
 
-        We use ``BACKEND_NAME`` class attribute if available â€” both
+        We use ``BACKEND_NAME`` class attribute if available — both
         :class:`SqliteVecStore` and :class:`Mem0Store` expose it. Otherwise
         we fall back to ``repr(store)``. The async :meth:`_store_id` is
         preferred for response aggregation; this sync flavour exists so
@@ -222,17 +222,17 @@ class MemoryRouter:
     async def remember(self, req: RememberRequest) -> RememberResponse:
         """Fan a remember out per :attr:`write_policy`.
 
-        * ``primary_only`` â€” call ``stores[0]`` only.
-        * ``all`` â€” fan out to every store whose capabilities include the
+        * ``primary_only`` — call ``stores[0]`` only.
+        * ``all`` — fan out to every store whose capabilities include the
           requested memory type. Stores without the capability are
           silently skipped (not failed).
 
         Aggregation:
-        * ``id`` â€” first successful store's id.
-        * ``stores`` â€” union of ``stores`` lists across successful
+        * ``id`` — first successful store's id.
+        * ``stores`` — union of ``stores`` lists across successful
           responses.
-        * ``pending_approval`` â€” True if any store returned True.
-        * ``approval_url`` â€” first non-None across successful responses.
+        * ``pending_approval`` — True if any store returned True.
+        * ``approval_url`` — first non-None across successful responses.
 
         Partial-failure semantics: if any store raises, the exception is
         logged and skipped. If *all* eligible stores raise (or no stores
@@ -295,12 +295,12 @@ class MemoryRouter:
                 approval_url = outcome.approval_url
 
         if success_count == 0:
-            # Every eligible store raised â€” re-raise the first exception so
+            # Every eligible store raised — re-raise the first exception so
             # callers see something rather than an empty response.
             assert first_exception is not None  # for type-narrowing
             raise first_exception
 
-        assert canonical_id is not None  # at least one success â†’ an id
+        assert canonical_id is not None  # at least one success → an id
         return RememberResponse(
             id=canonical_id,
             stored_at=_now_ms(),
@@ -316,12 +316,12 @@ class MemoryRouter:
     async def recall(self, req: RecallRequest) -> RecallResponse:
         """Fan a recall out, fuse, optionally boost, return top-k.
 
-        Implements :file:`docs/kickoff/ARCHITECTURE.md` Â§5 pseudocode.
+        Implements :file:`docs/kickoff/ARCHITECTURE.md` §5 pseudocode.
         """
         started_ms = _now_ms()
 
         fusion = req.fusion if req.fusion is not None else self._default_fusion
-        # Validate up front â€” pydantic accepts the enum, but if a caller
+        # Validate up front — pydantic accepts the enum, but if a caller
         # somehow injects an unknown algorithm we want a clear ValueError
         # rather than a KeyError deep in the fusion math.
         if fusion not in (FusionAlgorithm.RRF, FusionAlgorithm.MAX, FusionAlgorithm.WEIGHTED):
@@ -336,7 +336,7 @@ class MemoryRouter:
             eligible_stores = list(self._stores)
 
         if not eligible_stores:
-            # Nothing to query â€” return an empty response with the fusion
+            # Nothing to query — return an empty response with the fusion
             # the caller requested so downstream code can still log it.
             return RecallResponse(
                 results=[],
@@ -345,7 +345,7 @@ class MemoryRouter:
                 latency_ms=max(_now_ms() - started_ms, 0),
             )
 
-        # Per-store over-fetch: spec / ARCHITECTURE Â§5 says k*4.
+        # Per-store over-fetch: spec / ARCHITECTURE §5 says k*4.
         k = req.k if req.k is not None else 5
         per_store_k = max(k * 4, 1)
         per_store_req = req.model_copy(update={"k": per_store_k})
@@ -421,9 +421,9 @@ class MemoryRouter:
     ) -> float:
         """Per-occurrence contribution to the fused score, by algorithm.
 
-        * RRF â€” ``1 / (rrf_k + rank)`` (the item's own score is ignored).
-        * MAX â€” passthrough of the item's score (combine via ``max``).
-        * WEIGHTED â€” ``weight * item_score``.
+        * RRF — ``1 / (rrf_k + rank)`` (the item's own score is ignored).
+        * MAX — passthrough of the item's score (combine via ``max``).
+        * WEIGHTED — ``weight * item_score``.
         """
         if fusion is FusionAlgorithm.RRF:
             return 1.0 / (self._rrf_k + rank)
@@ -436,8 +436,8 @@ class MemoryRouter:
     def _fusion_combine(fusion: FusionAlgorithm, existing: float, incoming: float) -> float:
         """Combine two per-occurrence contributions for the same item.
 
-        * RRF / WEIGHTED â€” sum.
-        * MAX â€” element-wise max.
+        * RRF / WEIGHTED — sum.
+        * MAX — element-wise max.
         """
         if fusion is FusionAlgorithm.MAX:
             return max(existing, incoming)
@@ -455,8 +455,8 @@ class MemoryRouter:
     ) -> None:
         """Boost fused items whose neighbors are also in the fused set.
 
-        Cap hops at 2; deeper traversal is deferred to v0.2 (see spec Â§5
-        and ARCHITECTURE Â§5 pseudocode).
+        Cap hops at 2; deeper traversal is deferred to v0.2 (see spec §5
+        and ARCHITECTURE §5 pseudocode).
         """
         # Only stores that declare GRAPH *and* implement the Neighborable
         # Protocol participate.
@@ -466,7 +466,7 @@ class MemoryRouter:
             if Capability.GRAPH in s.capabilities and isinstance(s, Neighborable)
         ]
         if not graph_stores:
-            # Silent skip â€” no GRAPH-capable store wired in. v0.2 lands the
+            # Silent skip — no GRAPH-capable store wired in. v0.2 lands the
             # first real graph adapter.
             return
 
@@ -486,7 +486,7 @@ class MemoryRouter:
             for neighbors in neighbor_results:
                 for n in neighbors:
                     if n.id not in fused:
-                        # Per ARCHITECTURE Â§5 we only boost items already
+                        # Per ARCHITECTURE §5 we only boost items already
                         # in the fused set.
                         continue
                     hop_distance = self._hop_distance(n)
@@ -505,7 +505,7 @@ class MemoryRouter:
         """Extract the hop distance from a neighbor result.
 
         Convention: stores MAY pass ``hop_distance`` via
-        :attr:`RecallHit.metadata`. Missing â†’ default 1. Values are clamped
+        :attr:`RecallHit.metadata`. Missing → default 1. Values are clamped
         to >=1 so the boost formula stays well-defined.
         """
         metadata = hit.metadata or {}
@@ -537,7 +537,7 @@ class MemoryRouter:
     async def forget(self, req: ForgetRequest) -> ForgetResponse:
         """Fan a forget out, aggregate per-store counts.
 
-        Per spec Â§3.3 a request with neither ``ids`` nor ``filter`` is
+        Per spec §3.3 a request with neither ``ids`` nor ``filter`` is
         rejected here (before any child call) as a no-scope mass-delete.
         """
         if not req.ids and not req.filter:
@@ -625,7 +625,7 @@ class MemoryRouter:
     async def expire(self, req: ExpireRequest) -> ExpireResponse:
         """Fan an expire out, sum per-store matched counts.
 
-        Per spec Â§3.5: when the policy uses ``no_recall_in_days`` only
+        Per spec §3.5: when the policy uses ``no_recall_in_days`` only
         stores with :attr:`Capability.RECALL_TRACKING` are eligible; the
         rest are skipped silently. (Their own adapter would raise; the
         router pre-empts that to keep the aggregate clean.)
@@ -633,7 +633,7 @@ class MemoryRouter:
         Empty-policy guard: mirrors the no-scope mass-delete guard on
         :meth:`forget`. A request with no policy fields would otherwise
         match every live row for the agent and (with the default
-        ``action=FORGET``) soft-delete them all â€” see ARCHITECTURE Â§3.5.
+        ``action=FORGET``) soft-delete them all — see ARCHITECTURE §3.5.
         """
         # Reject empty/missing policies so a stray ``expire(policy={})``
         # cannot mass-delete every memory for the agent.
@@ -657,7 +657,7 @@ class MemoryRouter:
         for store in self._stores:
             if requires_recall_tracking and Capability.RECALL_TRACKING not in store.capabilities:
                 logger.debug(
-                    "skipping store %s for expire(no_recall_in_days) â€” no recall_tracking",
+                    "skipping store %s for expire(no_recall_in_days) — no recall_tracking",
                     self._store_id_sync(store),
                 )
                 continue
@@ -670,7 +670,7 @@ class MemoryRouter:
 
         action_taken = req.action  # spec contract: response echoes the request action
         # Resolve action_taken if the request omitted it: default per the
-        # ExpireResponse model contract â€” first successful outcome wins.
+        # ExpireResponse model contract — first successful outcome wins.
         total_matched = 0
         store_ids: list[str] = []
         first_action = None
@@ -711,10 +711,10 @@ class MemoryRouter:
     async def health(self) -> dict[str, Any]:
         """Fan health checks out; report aggregated router status.
 
-        * ``ok`` â€” every child returned ``status == "ok"``.
-        * ``degraded`` â€” at least one child is ``ok`` and at least one
+        * ``ok`` — every child returned ``status == "ok"``.
+        * ``degraded`` — at least one child is ``ok`` and at least one
           isn't (or raised).
-        * ``error`` â€” no child is ``ok``.
+        * ``error`` — no child is ``ok``.
         """
         outcomes = await asyncio.gather(
             *(s.health() for s in self._stores),

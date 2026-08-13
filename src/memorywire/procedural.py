@@ -2,16 +2,16 @@
 
 This module provides a thin, JSON-serializable wrapper around the
 :mod:`transitions` library so callers can author, validate, replay, and
-re-serialize procedural memories (per :file:`docs/spec/v0.md` Â§7).
+re-serialize procedural memories (per :file:`docs/spec/v0.md` §7).
 
 Two public classes:
 
-* :class:`Procedure` â€” a JSON-friendly dataclass mirroring the
+* :class:`Procedure` — a JSON-friendly dataclass mirroring the
   ``content`` shape declared by
   :file:`src/memorywire/schemas/types/procedural.json`. Roundtrips losslessly via
   :meth:`Procedure.to_dict` / :meth:`Procedure.from_dict`. Performs static
   validation independent of any runtime FSM engine.
-* :class:`ProcedureRunner` â€” wraps a :class:`transitions.Machine` so the
+* :class:`ProcedureRunner` — wraps a :class:`transitions.Machine` so the
   procedure can actually be driven. Resolves the spec's ``"source": "*"``
   wildcard idiom by expanding it to every declared state at construction
   time (so the underlying engine sees only fully-qualified transitions).
@@ -29,7 +29,7 @@ from typing import Any
 
 import transitions
 
-# The pytransitions wildcard idiom. memorywire v0 spec Â§7 (Editor's note) names
+# The pytransitions wildcard idiom. memorywire v0 spec §7 (Editor's note) names
 # this character explicitly; we centralise it so any future change is a
 # single-line edit.
 _WILDCARD: str = "*"
@@ -40,8 +40,8 @@ _WILDCARD: str = "*"
 _REQUIRED_KEYS: tuple[str, ...] = ("name", "initial", "states", "transitions")
 
 
-# Keys allowed on a transition dict. ANYTHING else â€” in particular
-# pytransitions' ``before`` / ``after`` / ``prepare`` callback keys â€” is
+# Keys allowed on a transition dict. ANYTHING else — in particular
+# pytransitions' ``before`` / ``after`` / ``prepare`` callback keys — is
 # rejected because pytransitions resolves string callbacks via
 # ``__import__(module)`` + ``getattr``, which is an arbitrary-code-execution
 # vector: a procedural memory with ``"before": "os.system"`` would run
@@ -60,7 +60,7 @@ _ALLOWED_TRANSITION_KEYS: frozenset[str] = frozenset(
 
 
 def validate_procedure_dict(data: dict[str, Any]) -> None:
-    """Validate a procedure-content dict per spec Â§7. Raise ``ValueError`` on failure."""
+    """Validate a procedure-content dict per spec §7. Raise ``ValueError`` on failure."""
     if not isinstance(data, dict):
         raise ValueError(f"procedure dict must be a mapping; got {type(data).__name__}")
     for key in _REQUIRED_KEYS:
@@ -108,7 +108,7 @@ def validate_procedure_dict(data: dict[str, Any]) -> None:
                 raise ValueError(f"transition[{idx}] missing required key {key!r}")
         # Reject any keys outside the safe allow-list. pytransitions'
         # ``before`` / ``after`` / ``prepare`` callback keys accept dotted
-        # strings that the engine resolves via ``__import__`` â€” i.e. an RCE
+        # strings that the engine resolves via ``__import__`` — i.e. an RCE
         # vector. We refuse them outright at validation time.
         disallowed = sorted(set(tr.keys()) - _ALLOWED_TRANSITION_KEYS)
         if disallowed:
@@ -165,7 +165,7 @@ def validate_procedure_dict(data: dict[str, Any]) -> None:
 
 @dataclass
 class Procedure:
-    """A JSON-serializable procedural-memory definition (spec Â§7)."""
+    """A JSON-serializable procedural-memory definition (spec §7)."""
 
     name: str
     initial: str
@@ -221,7 +221,7 @@ class Procedure:
         return proc
 
     def validate(self) -> None:
-        """Assert all spec Â§7 invariants. Raise ``ValueError`` on failure."""
+        """Assert all spec §7 invariants. Raise ``ValueError`` on failure."""
         validate_procedure_dict(self.to_dict())
 
     def __eq__(self, other: object) -> bool:

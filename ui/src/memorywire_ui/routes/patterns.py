@@ -22,7 +22,7 @@ def _templates(request: Request) -> Jinja2Templates:
 
 
 async def list_recos(request: Request) -> Response:
-    """GET ``/patterns`` â€” render the recommendation table."""
+    """GET ``/patterns`` — render the recommendation table."""
     db_path: str = request.app.state.db_path
     agent_id: str = request.app.state.agent_id
     threshold_raw = request.query_params.get("threshold")
@@ -44,7 +44,7 @@ async def list_recos(request: Request) -> Response:
 
 
 async def accept(request: Request) -> Response:
-    """POST ``/patterns/{pattern_key}/auto-allow`` â€” persist the rule."""
+    """POST ``/patterns/{pattern_key}/auto-allow`` — persist the rule."""
     db_path: str = request.app.state.db_path
     agent_id: str = request.app.state.agent_id
     key = request.path_params["pattern_key"]
