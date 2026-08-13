@@ -84,7 +84,7 @@ The specific evidence from the architecture/memory research agent:
 >
 > Memory benchmarks (LongMemEval, LoCoMo, BEAM) are fragmented with no canonical leaderboard, suggesting the standardisation race is still open.
 
-Module 14 Co-memorize HITL (diff-and-approve UI for memory writes) composes naturally — no product ships this today; "Governed Memory" arXiv 2603.17787 raises the problem; Oracle AI Agent Memory acknowledges it; nobody owns the diff-and-approve flow.
+Module 14 human-in-the-loop diff-and-approve for memory writes composes naturally — no product ships this today; "Governed Memory" arXiv 2603.17787 governs autonomous-agent memory but automates it (no human gate); Oracle AI Agent Memory acknowledges it; nobody owns the diff-and-approve flow.
 
 ---
 
@@ -109,7 +109,7 @@ Three independent signals converged:
 
 1. **The architecture/memory agent flagged three specific virgin pieces** — FSM procedural memory, standalone STM↔LTM primitive, cross-vendor protocol. Each is verifiable: search for any of them on GitHub and you'll find research papers but no products.
 
-2. **The eval/HITL agent independently flagged Co-memorize as the least-covered HITL mode** — "no product ships a human-review UI for agent long-term memory writes/edits/deletes." This composes directly with the memory protocol.
+2. **The eval/HITL agent independently flagged human-review-of-writes as the least-covered HITL mode** — "no product ships a human-review UI for agent long-term memory writes/edits/deletes." This composes directly with the memory protocol.
 
 3. **The benchmarks are fragmented** — LongMemEval, LoCoMo, BEAM, MemoryBench, all exist but none is canonical. Fragmentation across benchmarks is a leading indicator of an open standardization race.
 
@@ -122,7 +122,7 @@ The compound product (protocol + governance UI) is also defensible against the o
 All cited research files live in the source repo at:
 
 - [`output/agentic-ai-modules-scan/research_architecture_memory.md`](../output/agentic-ai-modules-scan/research_architecture_memory.md) — full Module 5 + 8 evidence with URLs
-- [`output/agentic-ai-modules-scan/research_eval_hitl.md`](../output/agentic-ai-modules-scan/research_eval_hitl.md) — Co-memorize gap evidence
+- [`output/agentic-ai-modules-scan/research_eval_hitl.md`](../output/agentic-ai-modules-scan/research_eval_hitl.md) — diff-and-approve HITL gap evidence
 - [`output/agentic-ai-modules-scan/research_rai_governance.md`](../output/agentic-ai-modules-scan/research_rai_governance.md) — Module 9-13 saturation evidence
 - [`output/agentic-ai-modules-scan/research_vertical_agents.md`](../output/agentic-ai-modules-scan/research_vertical_agents.md) — Module 1, 3, 4, 6 saturation evidence
 - [`output/agentic-ai-modules-scan/BRIEF.md`](../output/agentic-ai-modules-scan/BRIEF.md) — full synthesis brief with kill scenarios
