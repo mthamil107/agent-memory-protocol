@@ -1,4 +1,5 @@
 """Unit tests for the memorywire MCP server (memorywire.mcp.server)."""
+
 from __future__ import annotations
 
 import hashlib

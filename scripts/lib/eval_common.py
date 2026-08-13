@@ -28,6 +28,7 @@ references the paper uses.
 
 from __future__ import annotations
 
+import contextlib
 import hashlib
 import json
 import math
@@ -724,10 +725,8 @@ def per_question_store_urls(
             for sfx in ("", "-wal", "-shm", "-journal"):
                 p = db_path.with_name(db_path.name + sfx)
                 if p.exists():
-                    try:
+                    with contextlib.suppress(OSError):
                         p.unlink()
-                    except OSError:
-                        pass
             out_urls.append(f"sqlite-vec://{db_path.as_posix()}")
             owned.append(db_path)
         else:
@@ -747,10 +746,8 @@ def cleanup_question_dbs(paths: Iterable[Path]) -> None:
         for sfx in ("", "-wal", "-shm", "-journal"):
             p = db_path.with_name(db_path.name + sfx)
             if p.exists():
-                try:
+                with contextlib.suppress(OSError):
                     p.unlink()
-                except OSError:
-                    pass
 
 
 def build_grader_context(hits: Iterable[Any], *, max_chars: int = 4000) -> str:

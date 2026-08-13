@@ -8,7 +8,7 @@ from pathlib import Path
 # Force stdout to UTF-8 so we can print extracted PDF text on cp1252 consoles.
 sys.stdout.reconfigure(encoding="utf-8")
 
-from pypdf import PdfReader
+from pypdf import PdfReader  # noqa: E402  (import after stdout reconfigure)
 
 PDF = Path(r"C:\Users\THAMIL\Downloads\view.pdf")
 
@@ -48,22 +48,22 @@ print("=" * 76)
 print(" KEY-STRING SCAN")
 print("=" * 76)
 checks = [
-    ("Title: memorywire wire format",          "Vendor-Neutral Wire Format"),
-    ("Author: Thamilvendhan",            "Thamilvendhan"),
-    ("Author: Munirathinam",             "Munirathinam"),
-    ("Affiliation: Independent",         "Independent Researcher"),
-    ("Email: mthamil107@gmail",          "mthamil107@gmail"),
-    ("Repository URL",                   "github.com/mthamil107/memorywire"),
-    ("Abstract opener",                  "Agent-memory frameworks"),
-    ("Microbench number",                "recall@5 = 1.000"),
-    ("Adversarial number",               "0.500"),
-    ("Conformance number",               "68"),
-    ("Preliminary LME number",           "0.417"),
-    ("Preliminary LoCoMo number",        "0.150"),
-    ("Threat model section",             "Malicious memory injection"),
-    ("MCP positioning",                  "Model Context Protocol"),
-    ("References list",                  "Cormack"),
-    ("Old name placeholder absent",      "M. Thamil"),
+    ("Title: memorywire wire format", "Vendor-Neutral Wire Format"),
+    ("Author: Thamilvendhan", "Thamilvendhan"),
+    ("Author: Munirathinam", "Munirathinam"),
+    ("Affiliation: Independent", "Independent Researcher"),
+    ("Email: mthamil107@gmail", "mthamil107@gmail"),
+    ("Repository URL", "github.com/mthamil107/memorywire"),
+    ("Abstract opener", "Agent-memory frameworks"),
+    ("Microbench number", "recall@5 = 1.000"),
+    ("Adversarial number", "0.500"),
+    ("Conformance number", "68"),
+    ("Preliminary LME number", "0.417"),
+    ("Preliminary LoCoMo number", "0.150"),
+    ("Threat model section", "Malicious memory injection"),
+    ("MCP positioning", "Model Context Protocol"),
+    ("References list", "Cormack"),
+    ("Old name placeholder absent", "M. Thamil"),
 ]
 for label, needle in checks:
     found = needle in all_text

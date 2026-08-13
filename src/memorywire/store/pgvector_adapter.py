@@ -306,8 +306,7 @@ class PgVectorStore:
             import asyncpg
         except ImportError as exc:  # pragma: no cover - exercised by integration
             raise RuntimeError(
-                "PgVectorStore requires asyncpg. "
-                "Install with `pip install 'memorywire[postgres]'`."
+                "PgVectorStore requires asyncpg. Install with `pip install 'memorywire[postgres]'`."
             ) from exc
 
         # ``self._dsn is None`` is impossible here because the constructor

@@ -9,10 +9,11 @@ configured via environment variables:
 
 Run:  ``memorywire-mcp``
 """
+
 from __future__ import annotations
 
 import os
-from typing import Any
+from typing import Any, cast
 
 from mcp.server.fastmcp import FastMCP
 
@@ -51,7 +52,7 @@ async def remember(
     source: str | None = None,
     user_id: str | None = None,
     confidence: float = 1.0,
-) -> dict:
+) -> dict[str, Any]:
     """Store a memory. `type` is one of semantic|episodic|procedural|emotional. Set `source` to
     the memory's origin (user, system, tool_result, web_page, ...) — `recover` relies on it."""
     r = await _memory().remember(
@@ -61,7 +62,7 @@ async def remember(
 
 
 @mcp.tool()
-async def recall(query: str, k: int = 5, types: list[str] | None = None) -> dict:
+async def recall(query: str, k: int = 5, types: list[str] | None = None) -> dict[str, Any]:
     """Retrieve up to `k` memories matching `query`."""
     hits = await _memory().recall(
         query, k=k, types=[MemoryType(t) for t in types] if types else None
@@ -72,27 +73,29 @@ async def recall(query: str, k: int = 5, types: list[str] | None = None) -> dict
 @mcp.tool()
 async def forget(
     ids: list[str] | None = None,
-    filter: dict | None = None,
+    filter: dict[str, Any] | None = None,
     hard_delete: bool = False,
     reason: str | None = None,
-) -> dict:
+) -> dict[str, Any]:
     """Delete memories by `ids` or `filter` (at least one required). Soft-delete by default."""
     r = await _memory().forget(ids=ids, filter=filter, hard_delete=hard_delete, reason=reason)
     return {"forgotten": len(r.forgotten_ids)}
 
 
 @mcp.tool()
-async def merge(canonical: str, duplicates: list[str], strategy: str = "keep_canonical") -> dict:
+async def merge(
+    canonical: str, duplicates: list[str], strategy: str = "keep_canonical"
+) -> dict[str, Any]:
     """Collapse `duplicates` into `canonical`. strategy: keep_canonical|merge_content|keep_highest_confidence."""
     r = await _memory().merge(canonical, duplicates, strategy=MergeStrategy(strategy))
-    return _dump(r)
+    return cast("dict[str, Any]", _dump(r))
 
 
 @mcp.tool()
-async def expire(policy: dict, action: str = "forget") -> dict:
+async def expire(policy: dict[str, Any], action: str = "forget") -> dict[str, Any]:
     """Apply a TTL policy (e.g. {"older_than_days": 30, "confidence_below": 0.5}). action: forget|archive|demote."""
     r = await _memory().expire(policy, action=ExpireAction(action))
-    return _dump(r)
+    return cast("dict[str, Any]", _dump(r))
 
 
 @mcp.tool()
@@ -102,7 +105,7 @@ async def recover(
     use_detectors: bool = False,
     hard_delete: bool = False,
     dry_run: bool = True,
-) -> dict:
+) -> dict[str, Any]:
     """Detect and recover poisoned memory. Purges memories from untrusted sources, quarantines
     trusted-source entries that look like embedded directives (for human review), and optionally
     expires low-confidence rows. `dry_run` (default true) previews without changing anything."""

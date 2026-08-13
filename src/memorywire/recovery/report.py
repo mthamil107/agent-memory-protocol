@@ -4,23 +4,26 @@ Recovery classifies each memory into one verdict, then acts on it via the memory
 ``forget`` / ``expire`` operations. Nothing here talks to a store directly — these are plain
 records and reports so they are trivial to test and to serialise for automation.
 """
+
 from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
 from enum import Enum
+from typing import Any
 
 
-class Verdict(str, Enum):
-    KEEP = "keep"              # clean
-    PURGE = "purge"            # untrusted origin (or untrusted + detector hit) -> forget
+class Verdict(str, Enum):  # noqa: UP042 -- spec contract pins (str, Enum); StrEnum changes __str__
+    KEEP = "keep"  # clean
+    PURGE = "purge"  # untrusted origin (or untrusted + detector hit) -> forget
     QUARANTINE = "quarantine"  # trusted origin but looks like a directive -> soft-forget for review
-    EXPIRE = "expire"          # low-confidence, dropped by the expire policy
+    EXPIRE = "expire"  # low-confidence, dropped by the expire policy
 
 
 @dataclass
 class MemoryRecord:
     """A single memory row as seen by recovery."""
+
     id: str
     content: str
     source: str | None
@@ -56,7 +59,7 @@ class RecoveryReport:
     def kept(self) -> list[EntryVerdict]:
         return self._by(Verdict.KEEP)
 
-    def to_dict(self) -> dict:
+    def to_dict(self) -> dict[str, Any]:
         return {
             "scanned": self.scanned,
             "dry_run": self.dry_run,
@@ -65,9 +68,14 @@ class RecoveryReport:
             "expired": self.expired,
             "kept": len(self.kept),
             "actions": [
-                {"id": e.record.id, "verdict": e.verdict.value, "source": e.record.source,
-                 "reason": e.reason}
-                for e in self.verdicts if e.verdict is not Verdict.KEEP
+                {
+                    "id": e.record.id,
+                    "verdict": e.verdict.value,
+                    "source": e.record.source,
+                    "reason": e.reason,
+                }
+                for e in self.verdicts
+                if e.verdict is not Verdict.KEEP
             ],
         }
 
@@ -86,7 +94,9 @@ class RecoveryReport:
         if self.quarantined:
             lines.append("")
             lines.append("  [!] Quarantined for review - trusted-origin memories that look like")
-            lines.append("      directives. Recovery does NOT auto-delete these (the entangled case);")
+            lines.append(
+                "      directives. Recovery does NOT auto-delete these (the entangled case);"
+            )
             lines.append("      a human should confirm. They are soft-deleted (restorable):")
             for e in self.quarantined[:20]:
                 lines.append(f"      - {e.record.id}: {e.reason}")

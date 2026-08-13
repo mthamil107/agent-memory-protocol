@@ -249,7 +249,9 @@ async def test_remember_issues_parameterised_insert() -> None:
 
     # First N execute calls are DDL; find the INSERT into memories.
     insert_call = next(
-        c for c in conn.execute.call_args_list if "INSERT INTO memorywire.memories" in str(c.args[0])
+        c
+        for c in conn.execute.call_args_list
+        if "INSERT INTO memorywire.memories" in str(c.args[0])
     )
     sql = insert_call.args[0]
     params = insert_call.args[1:]
@@ -293,7 +295,9 @@ async def test_remember_with_approval_required_writes_pending_sentinel() -> None
         )
     )
     insert_call = next(
-        c for c in conn.execute.call_args_list if "INSERT INTO memorywire.memories" in str(c.args[0])
+        c
+        for c in conn.execute.call_args_list
+        if "INSERT INTO memorywire.memories" in str(c.args[0])
     )
     params = insert_call.args[1:]
     assert params[12] == PENDING_APPROVAL_DELETED_AT  # deleted_at slot
@@ -316,7 +320,9 @@ async def test_remember_procedural_writes_procedures_row() -> None:
         )
     )
     proc_call = next(
-        c for c in conn.execute.call_args_list if "INSERT INTO memorywire.procedures" in str(c.args[0])
+        c
+        for c in conn.execute.call_args_list
+        if "INSERT INTO memorywire.procedures" in str(c.args[0])
     )
     params = proc_call.args[1:]
     # name pulled from FSM, current too.
@@ -455,7 +461,9 @@ async def test_forget_hard_delete_issues_delete() -> None:
     store = PgVectorStore(pool=pool, embedder=fake_embedder)
     await store.forget(ForgetRequest(agent_id="agent-a", ids=["m1"], hard_delete=True))
     delete_call = next(
-        c for c in conn.execute.call_args_list if "DELETE FROM memorywire.memories" in str(c.args[0])
+        c
+        for c in conn.execute.call_args_list
+        if "DELETE FROM memorywire.memories" in str(c.args[0])
     )
     assert "DELETE" in delete_call.args[0]
     assert delete_call.args[1] == ["m1"]

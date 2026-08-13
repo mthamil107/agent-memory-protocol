@@ -11,6 +11,7 @@ hardened against attacker-controlled memory content (this is a poison-recovery t
 
     from memorywire.graph import build_graph, render_html
 """
+
 from __future__ import annotations
 
 import html
@@ -38,31 +39,41 @@ def build_graph(
     """Turn classified memory records into a {nodes, edges} graph."""
     trusted = set(trusted_sources)
     by_id = {v.record.id: v for v in verdicts}
-    nodes: list[dict] = []
-    edges: list[dict] = []
-    sources: dict[str, dict] = {}
+    nodes: list[dict[str, Any]] = []
+    edges: list[dict[str, Any]] = []
+    sources: dict[str, dict[str, Any]] = {}
 
     for r in records:
         v = by_id.get(r.id)
         # An unclassified record is treated as quarantine (review), never silently "clean".
-        vclass, vlabel = _VERDICT.get(v.verdict, ("quarantine", "unclassified")) if v \
+        vclass, vlabel = (
+            _VERDICT.get(v.verdict, ("quarantine", "unclassified"))
+            if v
             else ("quarantine", "unclassified")
+        )
         content = r.content if isinstance(r.content, str) else json.dumps(r.content)
-        nodes.append({
-            "id": r.id,
-            "kind": "memory",
-            "label": (content[:38] + "…") if len(content) > 39 else content,
-            "content": content,
-            "source": r.source or "unknown",
-            "confidence": r.confidence,
-            "trust": vclass,
-            "trust_label": vlabel,
-            "reason": v.reason if v else "",
-        })
+        nodes.append(
+            {
+                "id": r.id,
+                "kind": "memory",
+                "label": (content[:38] + "…") if len(content) > 39 else content,
+                "content": content,
+                "source": r.source or "unknown",
+                "confidence": r.confidence,
+                "trust": vclass,
+                "trust_label": vlabel,
+                "reason": v.reason if v else "",
+            }
+        )
         src = (r.source or "unknown").strip()
         if src not in sources:
-            sources[src] = {"id": f"src:{src}", "kind": "source", "label": src,
-                            "trust": "source", "trusted": src in trusted}
+            sources[src] = {
+                "id": f"src:{src}",
+                "kind": "source",
+                "label": src,
+                "trust": "source",
+                "trusted": src in trusted,
+            }
         edges.append({"from": f"src:{src}", "to": r.id})
 
     # Sources keep their own "source" kind/color (gray) — ring, not fill, marks trust.

@@ -1,4 +1,4 @@
-﻿"""``python -m amp_ui`` entry point.
+"""``python -m amp_ui`` entry point.
 
 Reads ``MEMORYWIRE_UI_DB_PATH``, ``MEMORYWIRE_UI_AGENT_ID``, ``MEMORYWIRE_UI_HOST``,
 ``MEMORYWIRE_UI_PORT``, ``MEMORYWIRE_UI_TOKEN``, and ``MEMORYWIRE_UI_CSRF_SECRET`` from the

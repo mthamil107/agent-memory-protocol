@@ -1,4 +1,4 @@
-﻿"""Smoke tests for the Starlette factory + top-level routing."""
+"""Smoke tests for the Starlette factory + top-level routing."""
 
 from __future__ import annotations
 

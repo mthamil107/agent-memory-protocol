@@ -7,10 +7,12 @@ an embedded instruction; trusted-origin content that trips it is *quarantined* (
 which is the honest handling of the entangled case. External detectors — including OWASP Agent
 Memory Guard's — can be supplied and are treated the same way.
 """
+
 from __future__ import annotations
 
 import re
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from .report import EntryVerdict, MemoryRecord, Verdict
 
@@ -71,14 +73,15 @@ def classify(
 
     # 2) Trusted origin: run detectors (built-in + any supplied). A hit here is the
     #    entangled case — a directive hiding in trusted memory. Quarantine, do not delete.
-    dets: list[Callable | Detector] = [directive_detector]
+    dets: list[Callable[..., Any] | Detector] = [directive_detector]
     if detectors:
         dets = dets + list(detectors)
     for d in dets:
         if _detector_hit(d, record.id, record.content):
             if quarantine_suspicious:
-                return EntryVerdict(record, Verdict.QUARANTINE,
-                                    "trusted-origin content matched a directive pattern")
+                return EntryVerdict(
+                    record, Verdict.QUARANTINE, "trusted-origin content matched a directive pattern"
+                )
             return EntryVerdict(record, Verdict.KEEP, "flagged but quarantine disabled")
 
     return EntryVerdict(record, Verdict.KEEP, "clean")

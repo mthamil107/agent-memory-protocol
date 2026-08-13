@@ -1,4 +1,4 @@
-﻿"""Data-access layer for the memorywire Governance UI.
+"""Data-access layer for the memorywire Governance UI.
 
 The UI is a thin renderer over the same SQLite database the
 :class:`memorywire.store.sqlite_vec.SqliteVecStore` adapter writes to. This module

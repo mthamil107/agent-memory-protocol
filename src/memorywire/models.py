@@ -1,4 +1,4 @@
-﻿"""Pydantic v2 models for the Agent Memory Protocol (memorywire) v0.
+"""Pydantic v2 models for the Agent Memory Protocol (memorywire) v0.
 
 This module mirrors the JSON Schemas under :mod:`memorywire.schemas`. Every operation
 request and response that has a JSON Schema has a matching pydantic class here.
