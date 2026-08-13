@@ -383,7 +383,11 @@ uv pip install pytest pytest-asyncio pytest-cov ruff mypy
 
 Modelled on [MCP](https://modelcontextprotocol.io) (cross-vendor protocol shape), informed by the [LongMemEval](https://arxiv.org/abs/2410.10813), [LoCoMo](https://arxiv.org/abs/2402.17753), and Governed Memory papers, and by the published architecture writeups of mem0, Letta, Cognee, Zep/Graphiti.
 
-The diff-and-approve workflow draws on the Co-memorize HITL pattern surfaced in the *Governed Memory* literature.
+The diff-and-approve workflow mirrors code review and change-management gates;
+what memorywire adds is its standardization at the wire-format layer. This contrasts
+with automated governance for autonomous agents such as
+[Governed Memory](https://arxiv.org/abs/2603.17787), which enforces write policy
+without a human gate.
 
 ## Prior work and naming
 
