@@ -13,7 +13,8 @@ For every memory of an agent it assigns one verdict:
 
 | Verdict | When | Action |
 |---|---|---|
-| **purge** | `source` is not trusted (e.g. `web_page`, `tool_result`) | `forget` (soft by default, `--hard` to hard-delete) |
+| **purge** | `source` is set to a value that is not trusted (e.g. `web_page`, `tool_result`) | `forget` (soft by default, `--hard` to hard-delete) |
+| **keep** | `source` is **absent** — see [Memories with no source](#memories-with-no-source) | untouched unless `--purge-unsourced` |
 | **quarantine** | trusted `source`, but the content reads like an embedded directive (the *entangled* case) | soft-`forget`, flagged for **human review** — never silently deleted |
 | **expire** | low confidence (with `--expire-low-conf`) | `expire` policy |
 | **keep** | clean | untouched |
@@ -35,7 +36,24 @@ memorywire recover --agent my-agent --store sqlite-vec://./mem.db --detectors --
 ```
 
 Flags: `--trusted user,system` · `--expire-low-conf` / `--confidence-below 0.75` ·
-`--detectors` · `--no-quarantine` · `--hard` · `--dry-run` · `--json`.
+`--detectors` · `--no-quarantine` · `--purge-unsourced` · `--hard` · `--dry-run` · `--json`.
+
+> **Note:** on the CLI, `--dry-run` is opt-in — `memorywire recover` **applies** by default.
+> The MCP `recover` tool is the other way round (`dry_run` defaults to `true`).
+
+## Memories with no source
+
+`source` is optional, and `--source` only landed on `remember` in 0.2.0, so a store written
+before that has no source on **any** row.
+
+Absence of a source is **not** treated as untrusted origin. Unsourced memories are kept, and
+the reason on the verdict says `clean (no source recorded)` so they are visible in the report
+rather than silently ignored. They are still run through the content detectors, so a directive
+hiding in an unsourced memory is quarantined (soft-delete, restorable) like any other.
+
+Pass `--purge-unsourced` to opt in to the stricter behaviour — only do this on a store where
+every legitimate write is known to be source-tagged, because on a legacy store it will purge
+every row.
 
 Set provenance when you write (agents should tag where a memory came from):
 

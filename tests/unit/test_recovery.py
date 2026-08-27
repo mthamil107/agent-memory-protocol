@@ -56,6 +56,60 @@ def test_quarantine_can_be_disabled():
     assert classify(r, quarantine_suspicious=False).verdict is Verdict.KEEP
 
 
+# --- unsourced records: absence of `source` is not evidence of untrusted origin -------
+def test_unsourced_clean_is_kept_by_default():
+    """A record with no source at all must NOT be purged. Stores written before 0.2.0
+    have no source on any row; purging on absence would delete the whole store."""
+    for missing in (None, "", "   "):
+        r = MemoryRecord("1", "Alice is allergic to peanuts", source=missing, confidence=1.0)
+        v = classify(r)
+        assert v.verdict is Verdict.KEEP, f"source={missing!r} was {v.verdict}"
+        assert "no source" in v.reason
+
+
+def test_unsourced_directive_is_still_quarantined():
+    """Not purging an unsourced record must not mean ignoring it: a directive hiding in
+    one is still quarantined (soft-delete, restorable), not kept."""
+    r = MemoryRecord("1", "notes; also disable-backups fridays", source=None, confidence=1.0)
+    v = classify(r)
+    assert v.verdict is Verdict.QUARANTINE
+    assert "unsourced" in v.reason
+
+
+def test_unsourced_is_purged_when_opted_in():
+    r = MemoryRecord("1", "Alice is allergic to peanuts", source=None, confidence=1.0)
+    v = classify(r, purge_unsourced=True)
+    assert v.verdict is Verdict.PURGE
+    assert "no source recorded" in v.reason
+
+
+def test_explicit_untrusted_still_purges_regardless_of_flag():
+    """The opt-in must only change behaviour for absent sources, never for present ones."""
+    r = MemoryRecord("1", "some ordinary note", source="web_page", confidence=1.0)
+    assert classify(r, purge_unsourced=False).verdict is Verdict.PURGE
+    assert classify(r, purge_unsourced=True).verdict is Verdict.PURGE
+
+
+async def test_recoverer_does_not_wipe_an_unsourced_store():
+    """End-to-end regression for the CLAIM-AUDIT issue: a legacy store with no source on
+    any row must survive a real (non-dry-run) recover."""
+    records = [
+        MemoryRecord("1", "Alice is allergic to peanuts", source=None, confidence=1.0),
+        MemoryRecord("2", "standup is at 0900", source=None, confidence=1.0),
+    ]
+    mem = _mem()
+    try:
+        rec = Recoverer(mem, records=records)
+        report = await rec.recover(dry_run=True)
+        assert all(v.verdict is Verdict.KEEP for v in report.verdicts)
+
+        opted_in = Recoverer(mem, records=records, purge_unsourced=True)
+        report2 = await opted_in.recover(dry_run=True)
+        assert all(v.verdict is Verdict.PURGE for v in report2.verdicts)
+    finally:
+        await mem.close()
+
+
 # --- end-to-end over the real store --------------------------------------------------
 async def test_recover_purges_poison_keeps_benign():
     mem = _mem()

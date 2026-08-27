@@ -62,17 +62,37 @@ def classify(
     trusted_sources: frozenset[str] = DEFAULT_TRUSTED,
     detectors: list[Detector] | None = None,
     quarantine_suspicious: bool = True,
+    purge_unsourced: bool = False,
 ) -> EntryVerdict:
-    """Return the recovery verdict for one memory record."""
-    src = (record.source or "unknown").strip()
-    untrusted = src not in trusted_sources
+    """Return the recovery verdict for one memory record.
 
-    # 1) Provenance — the strongest lever. Untrusted origin => purge.
-    if untrusted:
+    ``purge_unsourced`` controls what happens to a record carrying no ``source`` at all.
+    It defaults to ``False``, because absence of a source is not evidence of untrusted
+    origin: ``source`` is an optional field, and any store written before 0.2.0 (when
+    ``--source`` landed on ``remember``) has none on any row. Treating absence as
+    untrusted would purge such a store in full. Unsourced records are still passed to
+    the content detectors, so a directive hiding in one is quarantined rather than kept.
+    Set ``purge_unsourced=True`` only for a store where every legitimate write is known
+    to be source-tagged.
+    """
+    raw = (record.source or "").strip()
+    unsourced = not raw
+    src = raw or "unknown"
+
+    # 1) Provenance - the strongest lever. Untrusted origin => purge.
+    #    An absent source is handled separately: see purge_unsourced above.
+    if unsourced:
+        if purge_unsourced:
+            return EntryVerdict(
+                record, Verdict.PURGE, "no source recorded (purge_unsourced enabled)"
+            )
+    elif src not in trusted_sources:
         return EntryVerdict(record, Verdict.PURGE, f"untrusted source '{src}'")
 
-    # 2) Trusted origin: run detectors (built-in + any supplied). A hit here is the
-    #    entangled case — a directive hiding in trusted memory. Quarantine, do not delete.
+    # 2) Trusted or unsourced origin: run detectors (built-in + any supplied). A hit here
+    #    is the entangled case - a directive hiding in a memory we are not deleting on
+    #    provenance alone. Quarantine (soft-delete, restorable), do not purge.
+    origin = "unsourced" if unsourced else "trusted-origin"
     dets: list[Callable[..., Any] | Detector] = [directive_detector]
     if detectors:
         dets = dets + list(detectors)
@@ -80,8 +100,10 @@ def classify(
         if _detector_hit(d, record.id, record.content):
             if quarantine_suspicious:
                 return EntryVerdict(
-                    record, Verdict.QUARANTINE, "trusted-origin content matched a directive pattern"
+                    record, Verdict.QUARANTINE, f"{origin} content matched a directive pattern"
                 )
             return EntryVerdict(record, Verdict.KEEP, "flagged but quarantine disabled")
 
-    return EntryVerdict(record, Verdict.KEEP, "clean")
+    return EntryVerdict(
+        record, Verdict.KEEP, "clean (no source recorded)" if unsourced else "clean"
+    )

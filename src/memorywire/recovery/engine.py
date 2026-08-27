@@ -46,11 +46,14 @@ class Recoverer:
         trusted_sources: frozenset[str] | set[str] = DEFAULT_TRUSTED,
         detectors: list[Detector] | None = None,
         records: list[MemoryRecord] | None = None,
+        purge_unsourced: bool = False,
     ) -> None:
         self._mem = memory
         self._trusted = frozenset(trusted_sources)
         self._detectors = detectors
         self._records = records  # explicit override (e.g. non-sqlite backends / tests)
+        # Records with no `source` are NOT purged by default - see strategies.classify().
+        self._purge_unsourced = purge_unsourced
 
     def _collect(self) -> list[MemoryRecord]:
         if self._records is not None:
@@ -68,6 +71,7 @@ class Recoverer:
                 trusted_sources=self._trusted,
                 detectors=self._detectors,
                 quarantine_suspicious=quarantine_suspicious,
+                purge_unsourced=self._purge_unsourced,
             )
             for r in self._collect()
         ]

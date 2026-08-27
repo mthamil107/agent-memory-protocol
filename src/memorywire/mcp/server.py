@@ -105,17 +105,21 @@ async def recover(
     use_detectors: bool = False,
     hard_delete: bool = False,
     dry_run: bool = True,
+    purge_unsourced: bool = False,
 ) -> dict[str, Any]:
     """Detect and recover poisoned memory. Purges memories from untrusted sources, quarantines
     trusted-source entries that look like embedded directives (for human review), and optionally
-    expires low-confidence rows. `dry_run` (default true) previews without changing anything."""
+    expires low-confidence rows. `dry_run` (default true) previews without changing anything.
+    Memories carrying no source at all are kept unless `purge_unsourced` is set."""
     trusted = set(trusted_sources) if trusted_sources else {"user", "system"}
     detectors = None
     if use_detectors:
         from memorywire.recovery.strategies import directive_detector
 
         detectors = [directive_detector]
-    rec = Recoverer(_memory(), trusted_sources=trusted, detectors=detectors)
+    rec = Recoverer(
+        _memory(), trusted_sources=trusted, detectors=detectors, purge_unsourced=purge_unsourced
+    )
     report = await rec.recover(
         expire_low_conf=(mode == "provenance+expire"),
         hard_delete=hard_delete,
