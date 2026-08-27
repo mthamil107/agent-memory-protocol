@@ -90,22 +90,46 @@ def test_explicit_untrusted_still_purges_regardless_of_flag():
     assert classify(r, purge_unsourced=True).verdict is Verdict.PURGE
 
 
-async def test_recoverer_does_not_wipe_an_unsourced_store():
-    """End-to-end regression for the CLAIM-AUDIT issue: a legacy store with no source on
-    any row must survive a real (non-dry-run) recover."""
-    records = [
-        MemoryRecord("1", "Alice is allergic to peanuts", source=None, confidence=1.0),
-        MemoryRecord("2", "standup is at 0900", source=None, confidence=1.0),
-    ]
+async def test_applied_recover_does_not_wipe_an_unsourced_store():
+    """End-to-end regression for the CLAIM-AUDIT defect.
+
+    Three memories written to a real store with no ``source`` on any row - the shape of
+    any store written before 0.2.0 - must survive a real, *applied* recover. The dry-run
+    path is deliberately not used here: recover applies by default (``dry_run=False``),
+    and that is the path that wiped stores.
+    """
     mem = _mem()
     try:
-        rec = Recoverer(mem, records=records)
-        report = await rec.recover(dry_run=True)
-        assert all(v.verdict is Verdict.KEEP for v in report.verdicts)
+        await mem.remember("Alice is allergic to peanuts")
+        await mem.remember("standup is at 0900")
+        await mem.remember("the deploy key rotates monthly")
 
-        opted_in = Recoverer(mem, records=records, purge_unsourced=True)
-        report2 = await opted_in.recover(dry_run=True)
-        assert all(v.verdict is Verdict.PURGE for v in report2.verdicts)
+        report = await Recoverer(mem).recover()  # applied, not a dry run
+        assert len(report.purged) == 0
+        assert len(report.kept) == 3
+
+        # and they are genuinely still recallable, not merely un-purged in the report
+        allergy = await mem.recall("what is Alice allergic to", k=8)
+        assert any("peanuts" in h.content for h in allergy)
+        standup = await mem.recall("when is standup", k=8)
+        assert any("0900" in h.content for h in standup)
+    finally:
+        await mem.close()
+
+
+async def test_applied_recover_with_purge_unsourced_still_purges():
+    """The opt-in must still work end-to-end on an applied recover."""
+    mem = _mem()
+    try:
+        await mem.remember("Alice is allergic to peanuts")
+        await mem.remember("standup is at 0900")
+
+        report = await Recoverer(mem, purge_unsourced=True).recover()
+        assert len(report.purged) == 2
+        assert len(report.kept) == 0
+
+        hits = await mem.recall("what is Alice allergic to", k=8)
+        assert not any("peanuts" in h.content for h in hits)
     finally:
         await mem.close()
 
