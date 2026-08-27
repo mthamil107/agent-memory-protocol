@@ -173,6 +173,15 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Do not quarantine suspicious trusted-origin memories.",
     )
     recover.add_argument(
+        "--purge-unsourced",
+        action="store_true",
+        help=(
+            "Also purge memories that carry no source at all. OFF by default: an absent "
+            "source is not evidence of untrusted origin, and stores written before 0.2.0 "
+            "have no source on any row."
+        ),
+    )
+    recover.add_argument(
         "--hard",
         action="store_true",
         help="Hard-delete purged poison (default: soft-delete, restorable).",
@@ -362,7 +371,12 @@ async def _handle_recover(args: argparse.Namespace) -> int:
 
     mem = Memory(agent_id=args.agent_id, stores=_resolve_stores(args))
     try:
-        rec = Recoverer(mem, trusted_sources=trusted, detectors=detectors)
+        rec = Recoverer(
+            mem,
+            trusted_sources=trusted,
+            detectors=detectors,
+            purge_unsourced=args.purge_unsourced,
+        )
         report = await rec.recover(
             expire_low_conf=args.expire_low_conf,
             confidence_below=args.confidence_below,

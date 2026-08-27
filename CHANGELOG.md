@@ -8,6 +8,24 @@ changes may land between minor versions per the spec evolution policy in
 
 ## [Unreleased]
 
+### Fixed
+- **`recover` no longer purges memories that have no `source`.** An absent `source` was
+  normalised to `"unknown"`, failed the trusted-set membership test, and was classified
+  `PURGE` — so running `memorywire recover` (which applies by default on the CLI) against a
+  store written before 0.2.0, when `--source` landed on `remember`, soft-deleted every row
+  while reporting `untrusted source 'unknown'`. Absence of provenance is not evidence of
+  untrusted origin. Unsourced records are now kept, with the verdict reason
+  `clean (no source recorded)` so they stay visible in the report, and are still passed to the
+  content detectors — a directive hiding in an unsourced memory is quarantined as before.
+  Records with an explicitly untrusted `source` are unaffected.
+
+### Added
+- `purge_unsourced` (default `False`) on `classify()`, `Recoverer`, and the MCP `recover` tool,
+  plus `--purge-unsourced` on `memorywire recover`, to opt in to the previous stricter
+  behaviour on stores where every legitimate write is known to be source-tagged.
+- [`docs/recovery.md`](docs/recovery.md): a "Memories with no source" section, and a note that
+  `--dry-run` is opt-in on the CLI while the MCP tool defaults to `dry_run=true`.
+
 ## [0.5.0] - 2026-08-10
 
 ### Added
